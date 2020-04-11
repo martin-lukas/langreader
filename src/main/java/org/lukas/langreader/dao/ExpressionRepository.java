@@ -6,8 +6,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface ExpressionRepository
-        extends JpaRepository<Expression, Long>, ExpressionRepositoryCustom {
+        extends JpaRepository<Expression, Long> {
     List<Expression> findAllByOrderByVal();
 
-    List<Expression> findExpressionByVal(String val);
+    Expression findExpressionById(Long id);
+
+    Expression findExpressionByVal(String val);
+
+    boolean existsExpressionByVal(String val);
 }

@@ -24,13 +24,19 @@ public class ExpressionRestController {
         return expressionService.findAll();
     }
 
+    @GetMapping("/known/{expressionId}")
+    public Expression getKnownExpression(@PathVariable Long expressionId) {
+        return expressionService.findExpressionById(expressionId);
+    }
+
     @PostMapping("/known")
     public void addKnownExpression(@RequestBody Expression newExpression) {
-        if (newExpression.getVal() == null || newExpression.getVal().isEmpty()) {
+        String expressionVal = newExpression.getVal();
+        if (expressionVal == null || expressionVal.isEmpty()) {
             throw new InvalidExpressionException(
-                    "Provided expression '" + newExpression.getVal() + "' is not valid .");
+                    "Provided expression '" + expressionVal + "' is not valid .");
 
-        } else if (expressionService.expressionExists(newExpression)) {
+        } else if (expressionService.existsExpressionByVal(expressionVal)) {
             throw new DuplicateExpressionException(
                     "Duplicate expression. Expression with value '"  + newExpression.getVal()
                             + "' already exists.");
@@ -42,14 +48,15 @@ public class ExpressionRestController {
 
     @DeleteMapping("/known")
     public void deleteKnownExpression(@RequestBody Expression expression) {
-        if (expression.getVal() == null) {
+        String expressionVal = expression.getVal();
+        if (expressionVal == null) {
             throw new InvalidExpressionException(
-                    "Provided expression '" + expression.getVal() + "' is not valid .");
+                    "Provided expression '" + expressionVal + "' is not valid .");
         }
 
-        List<Expression> foundExpression = expressionService.findExpressionByVal(expression.getVal());
-        if (foundExpression.size() != 0) {
-            expressionService.delete(foundExpression.get(0));
+        Expression foundExpression = expressionService.findExpressionByVal(expressionVal);
+        if (foundExpression != null) {
+            expressionService.delete(foundExpression);
         }
     }
 }

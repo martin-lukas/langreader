@@ -7,9 +7,11 @@ import java.util.List;
 public interface ExpressionService {
     List<Expression> findAll();
 
-    List<Expression> findExpressionByVal(String val);
+    Expression findExpressionById(Long id);
 
-    boolean expressionExists(Expression expression);
+    Expression findExpressionByVal(String val);
+
+    boolean existsExpressionByVal(String val);
 
     void save(Expression expression);
 

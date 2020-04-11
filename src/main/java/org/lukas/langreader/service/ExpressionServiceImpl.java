@@ -3,7 +3,6 @@ package org.lukas.langreader.service;
 import org.lukas.langreader.dao.ExpressionRepository;
 import org.lukas.langreader.entity.Expression;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,13 +22,18 @@ public class ExpressionServiceImpl implements ExpressionService {
     }
 
     @Override
-    public List<Expression> findExpressionByVal(String val) {
+    public Expression findExpressionById(Long id) {
+        return expressionRepository.findExpressionById(id);
+    }
+
+    @Override
+    public Expression findExpressionByVal(String val) {
         return expressionRepository.findExpressionByVal(val);
     }
 
     @Override
-    public boolean expressionExists(Expression expression) {
-        return expressionRepository.expressionExists(expression);
+    public boolean existsExpressionByVal(String val) {
+        return expressionRepository.existsExpressionByVal(val);
     }
 
     @Override
