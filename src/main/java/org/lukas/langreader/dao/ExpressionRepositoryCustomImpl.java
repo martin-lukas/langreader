@@ -25,15 +25,15 @@ public class ExpressionRepositoryCustomImpl implements ExpressionRepositoryCusto
         return resultSize > 0;
     }
 
-    @Override
-    public Expression findByVal(String val) {
-        Query query = entityManager.createQuery("from Expression e where e.val = :value")
-                .setParameter("value", val);
-        List<Expression> expressions = query.getResultList();
-        if (expressions.size() > 1) {
-            return null;
-        } else {
-            return expressions.get(0);
-        }
-    }
+//    @Override
+//    public Expression findByVal(String val) {
+//        Query query = entityManager.createQuery("from Expression e where e.val = :value")
+//                .setParameter("value", val);
+//        List<Expression> expressions = query.getResultList();
+//        if (expressions.size() > 1) {
+//            return null;
+//        } else {
+//            return expressions.get(0);
+//        }
+//    }
 }

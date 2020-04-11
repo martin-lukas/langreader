@@ -3,7 +3,10 @@ package org.lukas.langreader.service;
 import org.lukas.langreader.dao.ExpressionRepository;
 import org.lukas.langreader.entity.Expression;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class ExpressionServiceImpl implements ExpressionService {
@@ -14,10 +17,14 @@ public class ExpressionServiceImpl implements ExpressionService {
         this.expressionRepository = expressionRepository;
     }
 
+    @Override
+    public List<Expression> findAll() {
+        return expressionRepository.findAllByOrderByVal();
+    }
 
     @Override
-    public Expression findByVal(String val) {
-        return expressionRepository.findByVal(val);
+    public List<Expression> findExpressionByVal(String val) {
+        return expressionRepository.findExpressionByVal(val);
     }
 
     @Override
@@ -28,11 +35,6 @@ public class ExpressionServiceImpl implements ExpressionService {
     @Override
     public void save(Expression expression) {
         expressionRepository.save(expression);
-    }
-
-    @Override
-    public void deleteById(Long id) {
-        expressionRepository.deleteById(id);
     }
 
     @Override
