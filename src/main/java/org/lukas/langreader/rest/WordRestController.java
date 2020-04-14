@@ -34,25 +34,29 @@ public class WordRestController {
     }
 
     @PostMapping("/enrich")
-    public List<Word> enrichWords(
-            @RequestBody List<Word> typelessWords) {
+    public List<List<Word>> enrichWords(
+            @RequestBody List<List<Word>> paragraphs) {
 
-        List<Word> enrichedWords = new ArrayList<>();
-        for (Word typelessWord : typelessWords) {
-            Word foundWord = wordRepository.findByWord(
-                    typelessWord.getWord());
-            if (foundWord != null) {
+        List<List<Word>> enrichedParagraphs = new ArrayList<>();
+        for (List<Word> paragraph : paragraphs) {
+            List<Word> enrichedParagraph = new ArrayList<>();
+            for (Word typelessWord : paragraph) {
+                Word foundWord = wordRepository.findByWord(
+                        typelessWord.getWord());
+                if (foundWord != null) {
                 /*
                     To prevent case-sensitivity of tokens - use the typeless obj reference
                     with type added. We are returning the original values for keeping the
                     specific letter cases from the read document.
                 */
-                typelessWord.setType(foundWord.getType());
-                typelessWord.setId(foundWord.getId());
+                    typelessWord.setType(foundWord.getType());
+                    typelessWord.setId(foundWord.getId());
+                }
+                enrichedParagraph.add(typelessWord);
             }
-            enrichedWords.add(typelessWord);
+            enrichedParagraphs.add(enrichedParagraph);
         }
-        return enrichedWords;
+        return enrichedParagraphs;
     }
 
     @PostMapping
