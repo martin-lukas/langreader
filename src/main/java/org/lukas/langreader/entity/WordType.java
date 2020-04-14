@@ -1,6 +1,6 @@
 package org.lukas.langreader.entity;
 
-public enum ExpressionType {
+public enum WordType {
     KNOWN,
     STUDIED,
     IGNORED

@@ -8,16 +8,16 @@ import lombok.ToString;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "expressions")
+@Table(name = "words")
 @Getter @Setter @NoArgsConstructor @ToString
-public class Expression {
+public class Word {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String val;
+    private String word;
 
     @Enumerated
     @Column(columnDefinition = "smallint")
-    private ExpressionType type;
+    private WordType type;
 }

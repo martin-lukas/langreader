@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor
-public class ExpressionResponse {
+public class WordResponse {
     private int status;
     private String message;
     private long timeStamp;
