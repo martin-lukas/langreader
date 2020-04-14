@@ -11,7 +11,7 @@ public interface ExpressionService {
 
     Expression findExpressionByVal(String val);
 
-    boolean existsExpressionByVal(String val);
+    boolean existsByVal(String val);
 
     void save(Expression expression);
 

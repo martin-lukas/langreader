@@ -13,5 +13,5 @@ public interface ExpressionRepository
 
     Expression findExpressionByVal(String val);
 
-    boolean existsExpressionByVal(String val);
+    boolean existsByVal(String val);
 }

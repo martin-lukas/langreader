@@ -32,8 +32,8 @@ public class ExpressionServiceImpl implements ExpressionService {
     }
 
     @Override
-    public boolean existsExpressionByVal(String val) {
-        return expressionRepository.existsExpressionByVal(val);
+    public boolean existsByVal(String val) {
+        return expressionRepository.existsByVal(val);
     }
 
     @Override

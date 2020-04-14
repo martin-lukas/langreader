@@ -8,12 +8,16 @@ import lombok.ToString;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "known_expressions")
+@Table(name = "expressions")
 @Getter @Setter @NoArgsConstructor @ToString
 public class Expression {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String val;
-//    private ExpressionType type;
+
+    @Enumerated
+    @Column(columnDefinition = "smallint")
+    private ExpressionType type;
 }
