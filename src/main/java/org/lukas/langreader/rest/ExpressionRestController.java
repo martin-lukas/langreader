@@ -28,6 +28,11 @@ public class ExpressionRestController {
         this.expressionRepository = expressionRepository;
     }
 
+    @GetMapping
+    public String hello() {
+        return "Hello world";
+    }
+
     @PostMapping("/enrich")
     public List<Expression> enrichExpressions(
             @RequestBody List<Expression> typelessExpressions) {
