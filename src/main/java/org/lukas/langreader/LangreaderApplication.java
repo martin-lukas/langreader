@@ -2,10 +2,17 @@ package org.lukas.langreader;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.Ordered;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+
+import java.util.Collections;
 
 @SpringBootApplication
 public class LangreaderApplication {
@@ -20,18 +27,6 @@ public class LangreaderApplication {
 			public void addCorsMappings(CorsRegistry registry) {
 				registry.addMapping("/**");
 			}
-
-//			@Override
-//			public void addCorsMappings(CorsRegistry registry) {
-//				registry.addMapping("/api/**")
-//						.allowedOrigins("http://domain2.com")
-//						.allowedMethods("PUT", "DELETE")
-//						.allowedHeaders("header1", "header2", "header3")
-//						.exposedHeaders("header1", "header2")
-//						.allowCredentials(false).maxAge(3600);
-//			}
 		};
 	}
-
-
 }
