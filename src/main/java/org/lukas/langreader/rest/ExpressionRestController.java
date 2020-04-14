@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -28,10 +29,25 @@ public class ExpressionRestController {
     }
 
     @PostMapping("/enrich")
-    public ResponseEntity<ExpressionResponse> enrichExpressions(
-            @RequestBody List<Expression> expressions) {
+    public List<Expression> enrichExpressions(
+            @RequestBody List<Expression> typelessExpressions) {
 
-        return null;
+        List<Expression> enrichedExpressions = new ArrayList<>();
+        for (Expression typelessExpression : typelessExpressions) {
+            Expression foundExpression = expressionRepository.findByVal(
+                    typelessExpression.getVal());
+            if (foundExpression != null) {
+                /*
+                    To prevent case-sensitivity of tokens - use the typeless obj reference
+                    with type added. We are returning the original values for keeping the
+                    specific letter cases from the read document.
+                */
+                typelessExpression.setType(foundExpression.getType());
+                typelessExpression.setId(foundExpression.getId());
+            }
+            enrichedExpressions.add(typelessExpression);
+        }
+        return enrichedExpressions;
     }
 
     @PostMapping
@@ -42,6 +58,8 @@ public class ExpressionRestController {
 
         if (response.getStatus() == 200) {
             newExpression.setId(null);
+            // to ensure case-insensitivity of tokens
+            newExpression.setVal(newExpression.getVal().toLowerCase());
             expressionRepository.save(newExpression);
         }
 
@@ -55,11 +73,13 @@ public class ExpressionRestController {
         ExpressionResponse response = validateUpdateExpressionRequest(expression);
 
         if (response.getStatus() == 200) {
-            Expression foundExpression = expressionRepository.findExpressionByVal(expression.getVal());
+            Expression foundExpression = expressionRepository.findByVal(
+                    expression.getVal().toLowerCase());
             response.setMessage(response.getMessage());
             // already checked that it's in the DB
-            expression.setId(foundExpression.getId());
-            expressionRepository.save(expression);
+            // also, saving the found obj to preserve case-insensivity
+            foundExpression.setType(expression.getType());
+            expressionRepository.save(foundExpression);
         }
 
         return new ResponseEntity<>(response, HttpStatus.resolve(response.getStatus()));
@@ -72,7 +92,8 @@ public class ExpressionRestController {
         ExpressionResponse response = validateDeleteExpressionRequest(expression);
 
         if (response.getStatus() == 200) {
-            Expression foundExpression = expressionRepository.findExpressionByVal(expression.getVal());
+            Expression foundExpression = expressionRepository.findByVal(
+                    expression.getVal().toLowerCase());
             // already checked that it's in the DB
             expressionRepository.delete(foundExpression);
         }
@@ -92,9 +113,10 @@ public class ExpressionRestController {
         } else if (expression.getType() == null) {
             status = HttpStatus.BAD_REQUEST;
             message = MISSING_TYPE_MSG;
-        } else if (expressionRepository.existsByVal(expressionVal)) {
+        } else if (expressionRepository.existsByVal(expressionVal.toLowerCase())) {
             status = HttpStatus.CONFLICT;
-            message = "Duplicate expression. Expression '" + expressionVal + "' already exists.";
+            message = "Duplicate expression. Expression '" + expressionVal + "' " +
+                    "or its variations already exist.";
         } else {
             status = HttpStatus.OK;
             message = "Expression saved.";
@@ -118,10 +140,10 @@ public class ExpressionRestController {
         } else if (expression.getType() == null) {
             status = HttpStatus.BAD_REQUEST;
             message = MISSING_TYPE_MSG;
-        } else if (!expressionRepository.existsByVal(expressionVal)) {
+        } else if (!expressionRepository.existsByVal(expressionVal.toLowerCase())) {
             status = HttpStatus.BAD_REQUEST;
             message = String.format(NOT_IN_DB_MSG, expressionVal);
-        }  else {
+        } else {
             status = HttpStatus.OK;
             message = "Expression updated.";
         }
@@ -141,7 +163,7 @@ public class ExpressionRestController {
         if (expressionVal == null || expressionVal.isEmpty()) {
             status = HttpStatus.BAD_REQUEST;
             message = String.format(INVALID_EXPR_MSG, expressionVal);
-        } else if (!expressionRepository.existsByVal(expressionVal)) {
+        } else if (!expressionRepository.existsByVal(expressionVal.toLowerCase())) {
             status = HttpStatus.BAD_REQUEST;
             message = String.format(NOT_IN_DB_MSG, expressionVal);
         } else {

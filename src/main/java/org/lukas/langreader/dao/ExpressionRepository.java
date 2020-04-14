@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface ExpressionRepository
         extends JpaRepository<Expression, Long> {
 
-    Expression findExpressionByVal(String val);
+    Expression findByVal(String val);
 
     boolean existsByVal(String val);
 }
