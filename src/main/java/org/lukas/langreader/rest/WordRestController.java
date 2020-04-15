@@ -28,11 +28,6 @@ public class WordRestController {
         this.wordRepository = wordRepository;
     }
 
-    @GetMapping
-    public String hello() {
-        return "Hello world";
-    }
-
     @PostMapping("/enrich")
     public List<Word> enrichWords(
             @RequestBody List<Word> words) {
@@ -40,7 +35,7 @@ public class WordRestController {
         List<Word> enrichedWords = new ArrayList<>();
         for (Word typelessWord : words) {
             Word foundWord = wordRepository.findByWord(
-                    typelessWord.getWord());
+                    typelessWord.getWord().toLowerCase());
             if (foundWord != null) {
                 /*
                     To prevent case-sensitivity of tokens - use the typeless obj reference
@@ -63,7 +58,7 @@ public class WordRestController {
         if (response.getStatus() == 200) {
             newWord.setId(null);
             // to ensure case-insensitivity of tokens
-            newWord.setWord(newWord.getWord().toLowerCase());
+            newWord.setWord(newWord.getWord());
             wordRepository.save(newWord);
         }
 
@@ -78,7 +73,7 @@ public class WordRestController {
 
         if (response.getStatus() == 200) {
             Word foundWord = wordRepository.findByWord(
-                    word.getWord().toLowerCase());
+                    word.getWord());
             response.setMessage(response.getMessage());
             // already checked that it's in the DB
             // also, saving the found obj to preserve case-insensivity
@@ -97,7 +92,7 @@ public class WordRestController {
 
         if (response.getStatus() == 200) {
             Word foundWord = wordRepository.findByWord(
-                    word.getWord().toLowerCase());
+                    word.getWord());
             // already checked that it's in the DB
             wordRepository.delete(foundWord);
         }
@@ -117,7 +112,7 @@ public class WordRestController {
         } else if (word.getType() == null) {
             status = HttpStatus.BAD_REQUEST;
             message = MISSING_TYPE_MSG;
-        } else if (wordRepository.existsByWord(wordVal.toLowerCase())) {
+        } else if (wordRepository.existsByWord(wordVal)) {
             status = HttpStatus.CONFLICT;
             message = "Duplicate word. Word '" + wordVal + "' " +
                     "or its variations already exist.";
@@ -144,7 +139,7 @@ public class WordRestController {
         } else if (word.getType() == null) {
             status = HttpStatus.BAD_REQUEST;
             message = MISSING_TYPE_MSG;
-        } else if (!wordRepository.existsByWord(wordVal.toLowerCase())) {
+        } else if (!wordRepository.existsByWord(wordVal)) {
             status = HttpStatus.BAD_REQUEST;
             message = String.format(NOT_IN_DB_MSG, wordVal);
         } else {
@@ -167,7 +162,7 @@ public class WordRestController {
         if (wordVal == null || wordVal.isEmpty()) {
             status = HttpStatus.BAD_REQUEST;
             message = String.format(INVALID_WORD_MSG, wordVal);
-        } else if (!wordRepository.existsByWord(wordVal.toLowerCase())) {
+        } else if (!wordRepository.existsByWord(wordVal)) {
             status = HttpStatus.BAD_REQUEST;
             message = String.format(NOT_IN_DB_MSG, wordVal);
         } else {
