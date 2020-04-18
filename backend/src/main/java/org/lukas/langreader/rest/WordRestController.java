@@ -47,10 +47,10 @@ public class WordRestController {
     }
 
     @PostMapping
-    public ResponseEntity<WordResponse> addWord(
+    public ResponseEntity<RestResponse> addWord(
             @RequestBody Word newWord) {
 
-        WordResponse response = validateAddWordRequest(newWord);
+        RestResponse response = validateAddWordRequest(newWord);
 
         if (response.getStatus() == 200) {
             newWord.setId(null);
@@ -63,15 +63,13 @@ public class WordRestController {
     }
 
     @PutMapping
-    public ResponseEntity<WordResponse> updateWord(
+    public ResponseEntity<RestResponse> updateWord(
             @RequestBody Word word) {
 
-        WordResponse response = validateUpdateWordRequest(word);
+        RestResponse response = validateUpdateWordRequest(word);
 
         if (response.getStatus() == 200) {
-            Word foundWord = wordRepository.findByWord(
-                    word.getWord());
-            response.setMessage(response.getMessage());
+            Word foundWord = wordRepository.findByWord(word.getWord());
             // already checked that it's in the DB
             // also, saving the found obj to preserve case-insensivity
             foundWord.setType(word.getType());
@@ -82,10 +80,10 @@ public class WordRestController {
     }
 
     @DeleteMapping
-    public ResponseEntity<WordResponse> deleteWord(
+    public ResponseEntity<RestResponse> deleteWord(
             @RequestBody Word word) {
 
-        WordResponse response = validateDeleteWordRequest(word);
+        RestResponse response = validateDeleteWordRequest(word);
 
         if (response.getStatus() == 200) {
             Word foundWord = wordRepository.findByWord(
@@ -97,8 +95,8 @@ public class WordRestController {
         return new ResponseEntity<>(response, HttpStatus.resolve(response.getStatus()));
     }
 
-    private WordResponse validateAddWordRequest(Word word) {
-        WordResponse response = new WordResponse();
+    private RestResponse validateAddWordRequest(Word word) {
+        RestResponse response = new RestResponse();
         HttpStatus status;
         String message;
 
@@ -124,8 +122,8 @@ public class WordRestController {
         return response;
     }
 
-    private WordResponse validateUpdateWordRequest(Word word) {
-        WordResponse response = new WordResponse();
+    private RestResponse validateUpdateWordRequest(Word word) {
+        RestResponse response = new RestResponse();
         HttpStatus status;
         String message;
 
@@ -150,8 +148,8 @@ public class WordRestController {
         return response;
     }
 
-    private WordResponse validateDeleteWordRequest(Word word) {
-        WordResponse response = new WordResponse();
+    private RestResponse validateDeleteWordRequest(Word word) {
+        RestResponse response = new RestResponse();
         HttpStatus status;
         String message;
 
