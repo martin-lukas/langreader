@@ -21,8 +21,17 @@
 
 <script>
   import {parseParagraph} from "./utils";
-  import {enrichWordsFromDB, removeFromDB, updateDB} from './db-utils';
   import ReadingArea from "./ReadingArea";
+  import axios from "axios";
+
+  // const SERVER_URL = 'https://lang-reader.herokuapp.com';
+  // const PORT = '';
+  const SERVER_URL = 'http://localhost';
+  const PORT = ':8088';
+  const URL = `${SERVER_URL}${PORT}`;
+  const ENRICH_API = '/api/words/enrich';
+  const UPDATE_WORD_API = '/api/words';
+  const RESET_WORD_API = UPDATE_WORD_API;
 
   export default {
     components: {ReadingArea},
@@ -43,11 +52,7 @@ This first chapter introduces a number of elements important to the story withou
     methods: {
       submit() {
         this.processInput();
-        enrichWordsFromDB(this.getWordObjs(), this.updateAfterEnriching); // callback
-      },
-      updateAfterEnriching(enrichedWordObjs) {
-        this.updateStrObjs(enrichedWordObjs);
-        this.isEnriched = true;
+        this.enrichWordsFromDB(this.getWordObjs());
       },
       processInput() {
         const paragraphTexts = this.input.split('\n');
@@ -65,13 +70,13 @@ This first chapter introduces a number of elements important to the story withou
         // update DB
         const isNew = (oldType === null);
         const dbObject = {word: theWordObj.word.toLowerCase(), type: newType};
-        updateDB(dbObject, isNew);
+        this.updateDB(dbObject, isNew);
       },
       resetWord(removedWordObj) {
         if (removedWordObj.type !== null) { // start reset only if it's not a new word already
           removedWordObj.type = null;
           this.updateStrObjs([removedWordObj]);
-          removeFromDB(removedWordObj);
+          this.removeFromDB(removedWordObj);
         }
       },
       updateStrObjs(wordObjs) { // TODO: improve performance here... make it async?
@@ -109,6 +114,47 @@ This first chapter introduces a number of elements important to the story withou
               wordObj.word.toLowerCase() === comparedWordObj.word.toLowerCase()
             ))
           );
+      },
+      enrichWordsFromDB(wordObjs) {
+        axios.post(`${URL}${ENRICH_API}`, wordObjs)
+          .then(response => {
+            this.updateStrObjs(response.data);
+            this.isEnriched = true;
+          })
+          .catch(err => {
+            console.log(err);
+          });
+      },
+      updateDB(wordObj, isNewWord) {
+        const httpMethod = (isNewWord) ? 'post' : 'put';
+        axios({method: httpMethod, url: `${URL}${UPDATE_WORD_API}`, data: wordObj})
+          .then(response => {
+            if (response.data.status !== 200) {
+              this.errorMsg = 'The server didn\'t accept change on word \'' + wordObj.word + '\'';
+            }
+          })
+          .catch(err => {
+            console.log(err);
+            this.errorMsg = err.toString();
+          });
+      },
+      removeFromDB(wordObj) {
+        axios({
+          method: 'delete',
+          url: `${URL}${RESET_WORD_API}`,
+          data: {
+            word: wordObj.word.toLowerCase()
+          }
+        })
+          .then(response => {
+            if (response.data.status !== 200) {
+              this.errorMsg = 'The server couldn\'t delete the word \'' + wordObj.word + '\'';
+            }
+          })
+          .catch(err => {
+            console.log(err);
+            this.errorMsg = err.toString();
+          });
       }
     }
   }
