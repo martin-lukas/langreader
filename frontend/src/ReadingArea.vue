@@ -157,7 +157,7 @@
   }
 </script>
 
-<style>
+<style scoped>
   #reading-area {
     font-family: arial, sans-serif;
     user-select: none;
