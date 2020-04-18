@@ -16,4 +16,5 @@ backend/src/main/resources/public
 frontend/target
 frontend/dist
 frontend/node_modules
+frontend/src/node_modules
 frontend/node
