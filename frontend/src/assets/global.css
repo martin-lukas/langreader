@@ -1,0 +1,8 @@
+html {
+    background-color: #f8f9fa;
+}
+
+.container-lg, .container-md, .container-xl {
+    background-color: #f8f9fa;
+    max-width: 800px;
+}
