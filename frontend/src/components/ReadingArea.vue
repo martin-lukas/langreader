@@ -1,5 +1,5 @@
 <template>
-  <div id="reading-area">
+  <div id="reading-area" class="rounded-lg">
     <p v-for="(paragraph, index) in paragraphs" :key="index">
       <span :class="(string.isWord) ? 'word' : 'other'"
             v-for="(string, index) in paragraph"
@@ -11,7 +11,7 @@
            @keyup.37="focusPrevious"
            @keyup.39="focusNext"
            @keyup.65="(e) => {$emit('update-word-type', string.str, 'KNOWN'); focusNext(e)}"
-           @keyup.83="(e) => {$emit('update-word-type', string.str, 'STUDIED'); focusNext(e)}"
+           @keyup.83="(e) => {$emit('update-word-t    ype', string.str, 'STUDIED'); focusNext(e)}"
            @keyup.68="(e) => {$emit('update-word-type', string.str, 'IGNORED'); focusNext(e)}"
            @keyup.82="$emit('reset-word', string.str)">{{ string.str.word }}</a>
         <template v-else>{{ string.str.word }}</template>
@@ -21,20 +21,127 @@
 </template>
 
 <script>
-  import {getClassName} from "./utils";
+  import {getClassName, parseParagraph} from "../utils/utils";
+  import axios from "axios";
+
+  // const SERVER_URL = 'https://lang-reader.herokuapp.com';
+  const SERVER_URL = 'http://localhost';
+  const ENRICH_API = '/api/words/enrich';
+  const UPDATE_WORD_API = '/api/words';
+  const RESET_WORD_API = UPDATE_WORD_API;
 
   export default {
     props: {
-      strings: Array,
-      stringCounts: Array,
-      select: Function
+      input: String
     },
     data() {
       return {
-        paragraphs: []
+        paragraphs: [],
+        strObjs: [],
+        strCounts: []
       }
     },
     methods: {
+      submit() {
+        this.processInput();
+        this.enrichWordsFromDB(this.getWordObjs());
+      },
+      processInput() {
+        const paragraphTexts = this.input.split('\n');
+        paragraphTexts.forEach((paragraphText) => {
+          let result = parseParagraph(paragraphText);
+          this.strObjs = [...this.strObjs, ...result];
+          this.strCounts.push(result.length);
+        });
+      },
+      updateWords(theWordObj, newType) {
+        const oldType = theWordObj.type;
+        // update Vue instance first
+        theWordObj.type = newType;
+        this.updateStrObjs([theWordObj]);
+        // update DB
+        const isNew = (oldType === null);
+        const dbObject = {word: theWordObj.word.toLowerCase(), type: newType};
+        this.updateDB(dbObject, isNew);
+      },
+      resetWord(removedWordObj) {
+        if (removedWordObj.type !== null) { // start reset only if it's not a new word already
+          removedWordObj.type = null;
+          this.updateStrObjs([removedWordObj]);
+          this.removeFromDB(removedWordObj);
+        }
+      },
+      updateStrObjs(wordObjs) { // TODO: improve performance here... make it async?
+        // ORIGINAL
+        // wordObjs.forEach(wordObj => {
+        //   const selectedStrObjs =
+        //     this.strObjs.filter(strObj => {
+        //       return strObj.isWord;
+        //     })
+        //       .filter(strWordObj => {
+        //         return (strWordObj.str.word.toLowerCase() === wordObj.word.toLowerCase());
+        //       });
+        //   selectedStrObjs.forEach(selectedStrObj => {
+        //     selectedStrObj.str.type = wordObj.type;
+        //   });
+        // });
+        // NOT MUCH BETTER
+        wordObjs.forEach(wordObj => {
+          this.strObjs.forEach(strObj => {
+            if (strObj.str.word.toLowerCase() === wordObj.word.toLowerCase()) {
+              strObj.str.type = wordObj.type;
+            }
+          });
+        });
+      },
+      getWordObjs() {
+        return this.strObjs.filter(strObj => {
+          return strObj.isWord;
+        })
+          .map(wordStrObj => {
+            return wordStrObj.str;
+          }) // remove duplicates - for performance reasons (ca. 3x quicker)
+          .filter((wordObj, index, self) =>
+            index === self.findIndex((comparedWordObj) => (
+              wordObj.word.toLowerCase() === comparedWordObj.word.toLowerCase()
+            ))
+          );
+      },
+      enrichWordsFromDB(wordObjs) {
+        axios.post(`${SERVER_URL}${ENRICH_API}`, wordObjs)
+          .then(response => {
+            this.updateStrObjs(response.data);
+            this.isEnriched = true;
+          })
+          .catch(err => {
+            console.log(err);
+          });
+      },
+      updateDB(wordObj, isNewWord) {
+        const httpMethod = (isNewWord) ? 'post' : 'put';
+        axios({method: httpMethod, url: `${SERVER_URL}${UPDATE_WORD_API}`, data: wordObj})
+          .then(response => {
+            if (response.data.status !== 200) {
+              this.errorMsg = 'The server didn\'t accept change on word \'' + wordObj.word + '\'';
+            }
+          })
+          .catch(err => {
+            console.log(err);
+            this.errorMsg = err.toString();
+          });
+      },
+      removeFromDB(wordObj) {
+        axios({
+          method: 'delete',
+          url: `${SERVER_URL}${RESET_WORD_API}`,
+          data: {
+            word: wordObj.word.toLowerCase()
+          }
+        })
+          .catch(err => {
+            console.log(err);
+          });
+      },
       focusPrevious(event) {
         const previousWordElement = this.getPreviousWordElement(event.target);
         if (previousWordElement) {
@@ -136,8 +243,6 @@
       }
     },
     created() {
-      console.time("createParagraphs");
-
       const strings = [...this.strings];
       let paragraphsOfStrings = [];
       for (let i = 0; i < this.stringCounts.length; i++) {
@@ -148,8 +253,6 @@
         paragraphsOfStrings.push(paragraphOfStrings);
       }
       this.paragraphs = paragraphsOfStrings;
-
-      console.timeEnd("createParagraphs");
     },
     mounted() {
       this.focusOnFirst();
@@ -159,22 +262,19 @@
 
 <style scoped>
   #reading-area {
-    font-family: arial, sans-serif;
+    border: 1px solid black;
+    border-radius: 5px;
     user-select: none;
-    width: 700px;
   }
 
   .other {
   }
-  
+
   a {
     display: inline-block;
-    border: 1px solid white;
-    border-radius: 5px;
     padding: 1px 0;
     background-color: #cfe6ff;
     text-decoration: none;
-    color: black;
     cursor: pointer;
   }
 
