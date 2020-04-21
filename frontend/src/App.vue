@@ -13,7 +13,7 @@
     components: {NavBar, ContentArea},
     data() {
       return {
-        selectedArea: 'reading'
+        selectedArea: 'home'
       }
     },
     methods: {
@@ -25,6 +25,14 @@
 </script>
 
 <style>
+  html, body, ul, li, a {
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  ul, li {list-style: none}
+
   #container {
     display: flex;
     flex-direction: column;
@@ -32,5 +40,12 @@
     font-family: serif;
     margin: 0 auto;
     max-width: 900px;
+  }
+
+  h2 {
+    font-size: 2.5em;
+    font-weight: normal;
+    margin: 0.5em;
+    padding: 0;
   }
 </style>
