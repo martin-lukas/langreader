@@ -5,7 +5,8 @@
              @text-selected="selectText"
              @area-selected="changeArea"/>
     <Account v-else-if="selected === 'account'"/>
-    <ReadingArea v-else-if="selected === 'reading'" :textObj="selectedTextObj"/>
+    <ReadingArea v-else-if="selected === 'reading' && selectedTextId >= 0"
+                 :textId="selectedTextId"/>
   </div>
 </template>
 
@@ -22,12 +23,12 @@
     },
     data() {
       return {
-        selectedTextObj: null
+        selectedTextId: -1
       }
     },
     methods: {
-      selectText(textObj) {
-        this.selectedTextObj = textObj;
+      selectText(textId) {
+        this.selectedTextId = textId;
       },
       changeArea(contentArea) {
         this.$emit('area-selected', contentArea);

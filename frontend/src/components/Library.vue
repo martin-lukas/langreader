@@ -1,39 +1,39 @@
 <template>
   <div id="library">
-    <LibraryItem :textObjs="textObjs"
-                     @text-selected="selectText"
-                     @area-selected="changeArea"/>
+    <TextList :textObjs="textObjs"
+              @text-selected="selectText"
+              @area-selected="changeArea"/>
   </div>
 </template>
 
 <script>
   import api from '../utils/backend-api';
-  import LibraryItem from "./LibraryItem";
+  import TextList from "./TextList";
 
   export default {
-    components: {LibraryItem},
+    components: {TextList},
     data() {
       return {
         textObjs: [],
       }
     },
     methods: {
-      fetchTexts() {
+      fetchTextTitles() {
         api.getTextTitles().then(response => {
           this.textObjs = response.data;
         }).catch(err => {
-            console.log(err);
-          });
+          console.error(err.response);
+        });
       },
-      selectText(textObj) {
-        this.$emit('text-selected', textObj);
+      selectText(textId) {
+        this.$emit('text-selected', textId);
       },
-      changeArea(contentArea) {
-        this.$emit('area-selected', contentArea);
+      changeArea(contentAreaName) {
+        this.$emit('area-selected', contentAreaName);
       }
     },
     mounted() {
-      this.fetchTexts();
+      this.fetchTextTitles();
     }
   }
 </script>
