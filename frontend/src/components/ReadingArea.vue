@@ -9,14 +9,16 @@
            @click.prevent
            @keyup.37="focusPrevious"
            @keyup.39="focusNext"
-           @keyup.65="(e) => {updateWords(string.str, 'KNOWN'); focusNext(e)}"
-           @keyup.83="(e) => {updateWords(string.str, 'STUDIED'); focusNext(e)}"
-           @keyup.68="(e) => {updateWords(string.str, 'IGNORED'); focusNext(e)}"
-           @keyup.82="resetWord(string.str)">
+           @keyup.65="(e) => {updateWord(string.str, 'KNOWN'); focusNext(e)}"
+           @keyup.83="(e) => {updateWord(string.str, 'STUDIED'); focusNext(e)}"
+           @keyup.68="(e) => {updateWord(string.str, 'IGNORED'); focusNext(e)}"
+           @keyup.82="updateWord(string.str, null)">
 
           {{ string.str.word }}
         </a>
-        <template v-else>{{ string.str.word }}</template>
+        <template v-else>
+          {{ string.str.word }}
+        </template>
       </template>
     </p>
   </div>
@@ -28,27 +30,34 @@
 
   export default {
     props: {
-      textObj: Object
+      textId: Number
     },
     data() {
       return {
         isEnriched: false,
-        isLoaded: false,
         paragraphs: [],
         strObjs: [],
         strCounts: []
       }
     },
     created() {
-      this.processInput();
-      this.enrichWordsFromDB(this.getWordObjs());
+      this.fetchText(this.textId).then(response => {
+        this.processInput(response.data);
+        this.enrichWordsFromDB(this.getWordObjs());
+      })
+        .catch(err => {
+          console.error(err.response);
+        });
     },
     updated() {
       this.$nextTick(this.focusOnFirst());
     },
     methods: {
-      processInput() {
-        const paragraphTexts = this.textObj.text.split('\n');
+      fetchText(textId) {
+        return api.getTextById(textId);
+      },
+      processInput(textObj) {
+        const paragraphTexts = textObj.text.split('\n');
         paragraphTexts.forEach((paragraphText) => {
           let result = utils.parseParagraph(paragraphText);
           this.strObjs = [...this.strObjs, ...result];
@@ -61,7 +70,7 @@
           this.createParagraphs();
           this.isEnriched = true;
         }).catch(err => {
-          console.log(err);
+          console.error(err.response);
         });
       },
       getWordObjs() {
@@ -76,20 +85,6 @@
         );
       },
       updateStrObjs(wordObjs) { // TODO: improve performance here... make it async?
-        // ORIGINAL
-        // wordObjs.forEach(wordObj => {
-        //   const selectedStrObjs =
-        //     this.strObjs.filter(strObj => {
-        //       return strObj.isWord;
-        //     })
-        //       .filter(strWordObj => {
-        //         return (strWordObj.str.word.toLowerCase() === wordObj.word.toLowerCase());
-        //       });
-        //   selectedStrObjs.forEach(selectedStrObj => {
-        //     selectedStrObj.str.type = wordObj.type;
-        //   });
-        // });
-        // NOT MUCH BETTER
         wordObjs.forEach(wordObj => {
           this.strObjs.forEach(strObj => {
             if (strObj.str.word.toLowerCase() === wordObj.word.toLowerCase()) {
@@ -110,8 +105,8 @@
         }
         this.paragraphs = paragraphsOfStrings;
       },
+      // If there are performance issues with focus change - target paragraph nodes
       focusOnFirst() {
-        console.time('Focus first');
         const allWords = document.getElementById('reading-area').getElementsByTagName('a');
         for (let i = 0; i < allWords.length; i++) {
           if (utils.getClassName(allWords[i]) === '') {
@@ -119,10 +114,8 @@
             break;
           }
         }
-        console.timeEnd('Focus first');
       },
       focusPrevious(event) {
-        console.time('Focus previous');
         const currentWord = event.target;
         const allWords = document.getElementById('reading-area').getElementsByTagName('a');
         forwardLoop: for (let i = 0; i < allWords.length; i++) {
@@ -135,13 +128,11 @@
             }
           }
         }
-        console.timeEnd('Focus previous');
       },
       focusNext(event) {
         // DOM didn't update quickly enough so it might've jumped to a previously new word,
         // now known, but not updated in the DOM yet
         this.$nextTick(() => {
-          console.time('Focus next');
           const currentWord = event.target;
           const allWords = document.getElementById('reading-area').getElementsByTagName('a');
           forwardLoop: for (let i = 0; i < allWords.length; i++) {
@@ -154,41 +145,36 @@
               }
             }
           }
-          console.timeEnd('Focus next');
         });
       },
-      updateWords(theWordObj, newType) {
-        const oldType = theWordObj.type;
-        // update Vue instance first
-        theWordObj.type = newType;
-        this.updateStrObjs([theWordObj]);
-        // update DB
-        const isNew = (oldType === null);
-        const dbObject = {word: theWordObj.word.toLowerCase(), type: newType};
-        this.updateInDB(dbObject, isNew);
+      updateWord(wordObj, newType) {
+        const oldType = wordObj.type;
+        if (oldType !== newType) {
+          const updatedWordObj = {word: wordObj.word.toLowerCase(), type: newType};
+          this.updateStrObjs([updatedWordObj]);
+          if (newType === null) { // remove whatever old type was
+            this.removeFromDB(updatedWordObj);
+          } else if (oldType === null) { // new word if type was null
+            this.addToDB(updatedWordObj);
+          } else {
+            this.updateInDB(updatedWordObj);
+          }
+        }
       },
       addToDB(wordObj) {
         api.addWord(wordObj).catch(err => {
-          console.log(err);
+          console.error(err.response);
         });
-      },
-      resetWord(removedWordObj) {
-        if (removedWordObj.type !== null) { // start reset only if it's not a new word already
-          removedWordObj.type = null;
-          this.updateStrObjs([removedWordObj]);
-          this.removeFromDB(removedWordObj);
-        }
       },
       updateInDB(wordObj) {
         api.updateWord(wordObj).catch(err => {
-          console.log(err);
+          console.error(err.response);
         });
       },
       removeFromDB(wordObj) {
-        api.removeWord(wordObj)
-          .catch(err => {
-            console.log(err);
-          });
+        api.removeWord(wordObj).catch(err => {
+          console.error(err.response);
+        });
       }
     }
   }
