@@ -1,75 +1,79 @@
 <template>
-  <div id="reading-area" class="rounded-lg">
+  <div id="reading-area" v-if="isEnriched">
     <p v-for="(paragraph, index) in paragraphs" :key="index">
-      <span :class="(string.isWord) ? 'word' : 'other'"
-            v-for="(string, index) in paragraph"
-            :key="index">
-        <a href="#"
+      <template v-for="(string, index) in paragraph">
+        <a v-if="string.isWord"
+           href="#"
            :class="string.str.type"
-           v-if="string.isWord"
+           :key="index"
            @click.prevent
            @keyup.37="focusPrevious"
            @keyup.39="focusNext"
-           @keyup.65="(e) => {$emit('update-word-type', string.str, 'KNOWN'); focusNext(e)}"
-           @keyup.83="(e) => {$emit('update-word-t    ype', string.str, 'STUDIED'); focusNext(e)}"
-           @keyup.68="(e) => {$emit('update-word-type', string.str, 'IGNORED'); focusNext(e)}"
-           @keyup.82="$emit('reset-word', string.str)">{{ string.str.word }}</a>
+           @keyup.65="(e) => {updateWords(string.str, 'KNOWN'); focusNext(e)}"
+           @keyup.83="(e) => {updateWords(string.str, 'STUDIED'); focusNext(e)}"
+           @keyup.68="(e) => {updateWords(string.str, 'IGNORED'); focusNext(e)}"
+           @keyup.82="resetWord(string.str)">
+
+          {{ string.str.word }}
+        </a>
         <template v-else>{{ string.str.word }}</template>
-      </span>
+      </template>
     </p>
   </div>
 </template>
 
 <script>
-  import {getClassName, parseParagraph} from "../utils/utils";
-  import axios from "axios";
-
-  // const SERVER_URL = 'https://lang-reader.herokuapp.com';
-  const SERVER_URL = 'http://localhost';
-  const ENRICH_API = '/api/words/enrich';
-  const UPDATE_WORD_API = '/api/words';
-  const RESET_WORD_API = UPDATE_WORD_API;
+  import utils from "../utils/utils";
+  import api from '../utils/backend-api';
 
   export default {
     props: {
-      input: String
+      textObj: Object
     },
     data() {
       return {
+        isEnriched: false,
+        isLoaded: false,
         paragraphs: [],
         strObjs: [],
         strCounts: []
       }
     },
+    created() {
+      this.processInput();
+      this.enrichWordsFromDB(this.getWordObjs());
+    },
+    updated() {
+      this.$nextTick(this.focusOnFirst());
+    },
     methods: {
-      submit() {
-        this.processInput();
-        this.enrichWordsFromDB(this.getWordObjs());
-      },
       processInput() {
-        const paragraphTexts = this.input.split('\n');
+        const paragraphTexts = this.textObj.text.split('\n');
         paragraphTexts.forEach((paragraphText) => {
-          let result = parseParagraph(paragraphText);
+          let result = utils.parseParagraph(paragraphText);
           this.strObjs = [...this.strObjs, ...result];
           this.strCounts.push(result.length);
         });
       },
-      updateWords(theWordObj, newType) {
-        const oldType = theWordObj.type;
-        // update Vue instance first
-        theWordObj.type = newType;
-        this.updateStrObjs([theWordObj]);
-        // update DB
-        const isNew = (oldType === null);
-        const dbObject = {word: theWordObj.word.toLowerCase(), type: newType};
-        this.updateDB(dbObject, isNew);
+      enrichWordsFromDB(wordObjs) {
+        api.enrichWords(wordObjs).then(response => {
+          this.updateStrObjs(response.data);
+          this.createParagraphs();
+          this.isEnriched = true;
+        }).catch(err => {
+          console.log(err);
+        });
       },
-      resetWord(removedWordObj) {
-        if (removedWordObj.type !== null) { // start reset only if it's not a new word already
-          removedWordObj.type = null;
-          this.updateStrObjs([removedWordObj]);
-          this.removeFromDB(removedWordObj);
-        }
+      getWordObjs() {
+        return this.strObjs.filter(strObj => {
+          return strObj.isWord;
+        }).map(wordStrObj => {
+          return wordStrObj.str;
+        }).filter((wordObj, index, self) => // remove duplicates - for performance reasons (ca. 3x quicker)
+          index === self.findIndex((comparedWordObj) => (
+            wordObj.word.toLowerCase() === comparedWordObj.word.toLowerCase()
+          ))
+        );
       },
       updateStrObjs(wordObjs) { // TODO: improve performance here... make it async?
         // ORIGINAL
@@ -94,204 +98,131 @@
           });
         });
       },
-      getWordObjs() {
-        return this.strObjs.filter(strObj => {
-          return strObj.isWord;
-        })
-          .map(wordStrObj => {
-            return wordStrObj.str;
-          }) // remove duplicates - for performance reasons (ca. 3x quicker)
-          .filter((wordObj, index, self) =>
-            index === self.findIndex((comparedWordObj) => (
-              wordObj.word.toLowerCase() === comparedWordObj.word.toLowerCase()
-            ))
-          );
-      },
-      enrichWordsFromDB(wordObjs) {
-        axios.post(`${SERVER_URL}${ENRICH_API}`, wordObjs)
-          .then(response => {
-            this.updateStrObjs(response.data);
-            this.isEnriched = true;
-          })
-          .catch(err => {
-            console.log(err);
-          });
-      },
-      updateDB(wordObj, isNewWord) {
-        const httpMethod = (isNewWord) ? 'post' : 'put';
-        axios({method: httpMethod, url: `${SERVER_URL}${UPDATE_WORD_API}`, data: wordObj})
-          .then(response => {
-            if (response.data.status !== 200) {
-              this.errorMsg = 'The server didn\'t accept change on word \'' + wordObj.word + '\'';
-            }
-          })
-          .catch(err => {
-            console.log(err);
-            this.errorMsg = err.toString();
-          });
-      },
-      removeFromDB(wordObj) {
-        axios({
-          method: 'delete',
-          url: `${SERVER_URL}${RESET_WORD_API}`,
-          data: {
-            word: wordObj.word.toLowerCase()
+      createParagraphs() {
+        const strings = [...this.strObjs];
+        let paragraphsOfStrings = [];
+        for (let i = 0; i < this.strCounts.length; i++) {
+          let paragraphOfStrings = [];
+          for (let j = 0; j < this.strCounts[i]; j++) {
+            paragraphOfStrings.push(strings.shift());
           }
-        })
-          .catch(err => {
-            console.log(err);
-          });
+          paragraphsOfStrings.push(paragraphOfStrings);
+        }
+        this.paragraphs = paragraphsOfStrings;
+      },
+      focusOnFirst() {
+        console.time('Focus first');
+        const allWords = document.getElementById('reading-area').getElementsByTagName('a');
+        for (let i = 0; i < allWords.length; i++) {
+          if (utils.getClassName(allWords[i]) === '') {
+            allWords[i].focus({preventScroll: true});
+            break;
+          }
+        }
+        console.timeEnd('Focus first');
       },
       focusPrevious(event) {
-        const previousWordElement = this.getPreviousWordElement(event.target);
-        if (previousWordElement) {
-          previousWordElement.focus({preventScroll: true});
+        console.time('Focus previous');
+        const currentWord = event.target;
+        const allWords = document.getElementById('reading-area').getElementsByTagName('a');
+        forwardLoop: for (let i = 0; i < allWords.length; i++) {
+          if (currentWord === allWords[i]) {
+            backwardLoop: for (let j = i - 1; j >= 0; j--) {
+              if (utils.getClassName(allWords[j]) === '') {
+                allWords[j].focus({preventScroll: true});
+                break forwardLoop;
+              }
+            }
+          }
         }
+        console.timeEnd('Focus previous');
       },
       focusNext(event) {
         // DOM didn't update quickly enough so it might've jumped to a previously new word,
         // now known, but not updated in the DOM yet
         this.$nextTick(() => {
-          const nextWordElement = this.getNextWordElement(event.target)
-          if (nextWordElement) {
-            nextWordElement.focus({preventScroll: true});
+          console.time('Focus next');
+          const currentWord = event.target;
+          const allWords = document.getElementById('reading-area').getElementsByTagName('a');
+          forwardLoop: for (let i = 0; i < allWords.length; i++) {
+            if (currentWord === allWords[i]) {
+              forwardForwardLoop: for (let j = i + 1; j < allWords.length; j++) {
+                if (utils.getClassName(allWords[j]) === '') {
+                  allWords[j].focus({preventScroll: true});
+                  break forwardLoop;
+                }
+              }
+            }
           }
+          console.timeEnd('Focus next');
         });
       },
-      getPreviousWordElement(wordElement) {
-        let previousWordElement = null;
-        let previousParent = wordElement.parentNode.previousSibling;
-        // look for closest new word
-        // first looking through current paragraph
-        while (previousParent) {
-          if (getClassName(previousParent) !== 'other'
-            && getClassName(previousParent.firstChild) === '') {
-
-            previousWordElement = previousParent.firstChild;
-            break;
-          }
-          previousParent = previousParent.previousSibling;
-        }
-        // now going through everything before current word, even in prev. paragraphs
-        if (previousWordElement === null) {
-          let previousParagraph = wordElement.parentNode.parentNode.previousSibling;
-          // going paragraph by paragraph
-          parLoop: while (previousParagraph) {
-            let previousChild = previousParagraph.lastChild;
-            // going through elements in each paragraph
-            while (previousChild) {
-              if (getClassName(previousChild) !== 'other'
-                && getClassName(previousChild.firstChild) === '') {
-
-                previousWordElement = previousChild.firstChild;
-                break parLoop;
-              }
-              previousChild = previousChild.previousSibling;
-            }
-            previousParagraph = previousParagraph.previousSibling;
-          }
-        }
-
-        return previousWordElement;
+      updateWords(theWordObj, newType) {
+        const oldType = theWordObj.type;
+        // update Vue instance first
+        theWordObj.type = newType;
+        this.updateStrObjs([theWordObj]);
+        // update DB
+        const isNew = (oldType === null);
+        const dbObject = {word: theWordObj.word.toLowerCase(), type: newType};
+        this.updateInDB(dbObject, isNew);
       },
-      getNextWordElement(wordElement) {
-        let nextWordElement = null;
-        let nextParent = wordElement.parentNode.nextSibling;
-        // look for closest new word
-        // first looking through current paragraph
-        while (nextParent) {
-          if (getClassName(nextParent) !== 'other' && getClassName(nextParent.firstChild) === '') {
-            nextWordElement = nextParent.firstChild;
-            break;
-          }
-          nextParent = nextParent.nextSibling;
-        }
-        // now going through rest of the document
-        if (nextWordElement === null) {
-          let nextParagraph = wordElement.parentNode.parentNode.nextSibling;
-          // going paragraph by paragraph
-          parLoop: while (nextParagraph) {
-            let nextChild = nextParagraph.firstChild;
-            // going through elements in each paragraph
-            while (nextChild) {
-              if (getClassName(nextChild) !== 'other' && getClassName(nextChild.firstChild) === '') {
-                nextWordElement = nextChild.firstChild;
-                break parLoop;
-              }
-              nextChild = nextChild.nextSibling;
-            }
-            nextParagraph = nextParagraph.nextSibling;
-          }
-        }
-
-        return nextWordElement;
+      addToDB(wordObj) {
+        api.addWord(wordObj).catch(err => {
+          console.log(err);
+        });
       },
-      focusOnFirst() {
-        const firstPar = document.getElementById('reading-area').firstChild;
-        let firstColoredWord = null;
-        if (firstPar) {
-          let firstWord = firstPar.firstChild;
-          if (getClassName(firstWord) !== 'other' && getClassName(firstWord.firstChild) === '') {
-            firstColoredWord = firstWord.firstChild;
-          } else {
-            firstColoredWord = this.getNextWordElement(firstWord.firstChild);
-          }
-          if (firstColoredWord) {
-            firstColoredWord.focus({preventScroll: true});
-          }
+      resetWord(removedWordObj) {
+        if (removedWordObj.type !== null) { // start reset only if it's not a new word already
+          removedWordObj.type = null;
+          this.updateStrObjs([removedWordObj]);
+          this.removeFromDB(removedWordObj);
         }
+      },
+      updateInDB(wordObj) {
+        api.updateWord(wordObj).catch(err => {
+          console.log(err);
+        });
+      },
+      removeFromDB(wordObj) {
+        api.removeWord(wordObj)
+          .catch(err => {
+            console.log(err);
+          });
       }
-    },
-    created() {
-      const strings = [...this.strings];
-      let paragraphsOfStrings = [];
-      for (let i = 0; i < this.stringCounts.length; i++) {
-        let paragraphOfStrings = [];
-        for (let j = 0; j < this.stringCounts[i]; j++) {
-          paragraphOfStrings.push(strings.shift());
-        }
-        paragraphsOfStrings.push(paragraphOfStrings);
-      }
-      this.paragraphs = paragraphsOfStrings;
-    },
-    mounted() {
-      this.focusOnFirst();
     }
   }
 </script>
 
 <style scoped>
   #reading-area {
-    border: 1px solid black;
-    border-radius: 5px;
     user-select: none;
   }
 
-  .other {
-  }
-
-  a {
+  #reading-area a {
     display: inline-block;
     padding: 1px 0;
     background-color: #cfe6ff;
+    border-radius: 3px;
     text-decoration: none;
+    color: #313131;
     cursor: pointer;
   }
 
-  a:focus {
+  #reading-area a:focus {
     outline: 0;
     color: #e00202;
   }
 
-  .KNOWN {
+  #reading-area .KNOWN {
     background-color: white;
   }
 
-  .STUDIED {
+  #reading-area .STUDIED {
     background-color: yellow;
   }
 
-  .IGNORED {
+  #reading-area .IGNORED {
     background-color: white;
   }
 </style>
