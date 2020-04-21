@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/texts")
@@ -24,8 +25,22 @@ public class TextRestController {
     }
 
     @GetMapping
-    public List<Text> getAllTexts() {
-        return textRepository.findAll();
+    public List<Text> getAllTextTitles() {
+        List<Text> texts = textRepository.findAll();
+        for (Text text : texts) {
+            text.setText(null);
+        }
+        return texts;
+    }
+
+    @GetMapping("/{textId}")
+    public ResponseEntity<Text> getTextWithId(@PathVariable int textId) {
+        Optional<Text> foundText = textRepository.findById(textId);
+        if (foundText.isPresent()) {
+            return new ResponseEntity<>(foundText.get(), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }
     }
 
     @PostMapping
