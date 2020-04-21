@@ -77,8 +77,7 @@ public class WordRestController {
         RestResponse response = validateDeleteWordRequest(word);
 
         if (response.getStatus() == 200) {
-            Word foundWord = wordRepository.findByWord(
-                    word.getWord().toLowerCase());
+            Word foundWord = wordRepository.findByWord(word.getWord());
             // already checked that it's in the DB
             wordRepository.delete(foundWord);
         }
