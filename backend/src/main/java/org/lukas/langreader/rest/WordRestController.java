@@ -26,18 +26,15 @@ public class WordRestController {
     }
 
     @PostMapping("/enrich")
-    public List<Word> enrichWords(
-            @RequestBody List<Word> words) {
-
+    public List<Word> enrichWords(@RequestBody List<Word> words) {
         List<Word> enrichedWords = new ArrayList<>();
         for (Word typelessWord : words) {
-            Word foundWord = wordRepository.findByWord(
-                    typelessWord.getWord().toLowerCase());
+            Word foundWord = wordRepository.findByWord(typelessWord.getWord().toLowerCase());
             if (foundWord != null) {
                 /*
                     To prevent case-sensitivity of tokens - use the typeless obj reference
-                    with type added. We are returning the original values for keeping the
-                    specific letter cases from the read document.
+                    with type added. We are returning the original values for preserving
+                    case sensitivity in the read document.
                 */
                 typelessWord.setType(foundWord.getType());
             }
@@ -47,9 +44,7 @@ public class WordRestController {
     }
 
     @PostMapping
-    public ResponseEntity<RestResponse> addWord(
-            @RequestBody Word newWord) {
-
+    public ResponseEntity<RestResponse> addWord(@RequestBody Word newWord) {
         RestResponse response = validateAddWordRequest(newWord);
 
         if (response.getStatus() == 200) {
@@ -63,9 +58,7 @@ public class WordRestController {
     }
 
     @PutMapping
-    public ResponseEntity<RestResponse> updateWord(
-            @RequestBody Word word) {
-
+    public ResponseEntity<RestResponse> updateWord(@RequestBody Word word) {
         RestResponse response = validateUpdateWordRequest(word);
 
         if (response.getStatus() == 200) {
@@ -80,14 +73,12 @@ public class WordRestController {
     }
 
     @DeleteMapping
-    public ResponseEntity<RestResponse> deleteWord(
-            @RequestBody Word word) {
-
+    public ResponseEntity<RestResponse> deleteWord(@RequestBody Word word) {
         RestResponse response = validateDeleteWordRequest(word);
 
         if (response.getStatus() == 200) {
             Word foundWord = wordRepository.findByWord(
-                    word.getWord());
+                    word.getWord().toLowerCase());
             // already checked that it's in the DB
             wordRepository.delete(foundWord);
         }
