@@ -28,5 +28,14 @@ export default {
   },
   getTextById(textId) {
     return AXIOS.get(`/texts/${textId}`);
+  },
+  addText(textObj) {
+    return AXIOS.post('/texts', textObj);
+  },
+  updateText(textObj) {
+    return AXIOS.put('/texts', textObj);
+  },
+  removeText(textObj) {
+    return AXIOS.delete('/texts', {data: textObj});
   }
 }
