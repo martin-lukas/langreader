@@ -1,5 +1,9 @@
 <template>
   <div id="reading-area" v-if="isEnriched">
+    <button @click="$emit('area-selected', 'Library')">
+      &#8678;
+    </button>
+    <h3>{{ textObj.title }}</h3>
     <p v-for="(paragraph, index) in paragraphs" :key="index">
       <template v-for="(string, index) in paragraph">
         <a v-if="string.isWord"
@@ -34,6 +38,7 @@
     },
     data() {
       return {
+        textObj: null,
         isEnriched: false,
         paragraphs: [],
         strObjs: [],
@@ -42,7 +47,8 @@
     },
     created() {
       this.fetchText(this.textId).then(response => {
-        this.processInput(response.data);
+        this.textObj = response.data;
+        this.processInput(this.textObj);
         this.enrichWordsFromDB(this.getWordObjs());
       })
         .catch(err => {
@@ -130,22 +136,18 @@
         }
       },
       focusNext(event) {
-        // DOM didn't update quickly enough so it might've jumped to a previously new word,
-        // now known, but not updated in the DOM yet
-        this.$nextTick(() => {
-          const currentWord = event.target;
-          const allWords = document.getElementById('reading-area').getElementsByTagName('a');
-          forwardLoop: for (let i = 0; i < allWords.length; i++) {
-            if (currentWord === allWords[i]) {
-              forwardForwardLoop: for (let j = i + 1; j < allWords.length; j++) {
-                if (utils.getClassName(allWords[j]) === '') {
-                  allWords[j].focus({preventScroll: true});
-                  break forwardLoop;
-                }
+        const currentWord = event.target;
+        const allWords = document.getElementById('reading-area').getElementsByTagName('a');
+        forwardLoop: for (let i = 0; i < allWords.length; i++) {
+          if (currentWord === allWords[i]) {
+            forwardForwardLoop: for (let j = i + 1; j < allWords.length; j++) {
+              if (utils.getClassName(allWords[j]) === '') {
+                allWords[j].focus({preventScroll: true});
+                break forwardLoop;
               }
             }
           }
-        });
+        }
       },
       updateWord(wordObj, newType) {
         const oldType = wordObj.type;
@@ -185,30 +187,54 @@
     user-select: none;
   }
 
-  #reading-area a {
+  button {
+    font-size: 1.5em;
+    background-color: #4994d4;
+    color: white;
+    padding: 2px 7px;
+    border: none;
+    border-radius: 10px;
+    outline: 0;
+    cursor: pointer;
+  }
+
+  button:hover {
+    background-color: #327bbf;
+  }
+
+  button.toggled {
+    background-color: #0a569a;
+  }
+
+  h3 {
+    font-size: 1.5em;
+    margin: 0.5em 0;
+  }
+
+  a {
     display: inline-block;
+    font-size: 1.1em;
     padding: 1px 0;
     background-color: #cfe6ff;
     border-radius: 3px;
     text-decoration: none;
-    color: #313131;
     cursor: pointer;
   }
 
-  #reading-area a:focus {
+  a:focus {
     outline: 0;
     color: #e00202;
   }
 
-  #reading-area .KNOWN {
+  .KNOWN {
     background-color: white;
   }
 
-  #reading-area .STUDIED {
+  .STUDIED {
     background-color: yellow;
   }
 
-  #reading-area .IGNORED {
+  .IGNORED {
     background-color: white;
   }
 </style>
