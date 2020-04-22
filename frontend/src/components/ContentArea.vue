@@ -1,11 +1,12 @@
 <template>
   <div id="content-area">
-    <Library v-if="selected === 'library'"
+    <Library v-if="selected === 'Library'"
              @text-selected="selectText"
              @area-selected="changeArea"/>
-    <Account v-else-if="selected === 'account'"/>
-    <ReadingArea v-else-if="selected === 'reading' && selectedTextId >= 0"
-                 :textId="selectedTextId"/>
+    <Account v-else-if="selected === 'Account'"/>
+    <ReadingArea v-else-if="selected === 'Reading' && selectedTextId >= 0"
+                 :textId="selectedTextId"
+                 @area-selected="changeArea"/>
   </div>
 </template>
 

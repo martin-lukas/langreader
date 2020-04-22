@@ -2,12 +2,12 @@
   <nav id="topnav" class="topnav">
     <a v-for="(menuItem, index) in menuItems" :key="index"
        href="#"
-       :class="(menuItem.name === selected) ? 'active' : ''"
+       :class="(menuItem === selected) ? 'active' : ''"
        @click.prevent="(e) => {
          if (isToggled) {toggleTopNav();}
-         $emit('area-selected', menuItem.name);
+         $emit('area-selected', menuItem);
        }">
-      {{ menuItem.label }}
+      {{ menuItem }}
     </a>
     <a href="javascript:void(0);" class="icon" @click="toggleTopNav">
       <i class="fa fa-bars"></i>
@@ -23,16 +23,7 @@
     data() {
       return {
         isToggled: false,
-        menuItems: [
-          {
-            name: 'library',
-            label: 'Library'
-          },
-          {
-            name: 'account',
-            label: 'Account'
-          }
-        ]
+        menuItems: ['Library', 'Account']
       }
     },
     methods: {
@@ -58,7 +49,7 @@
   }
 
   /* Style the links inside the navigation bar */
-  .topnav a {
+  a {
     float: left;
     display: block;
     color: #f2f2f2;
@@ -70,20 +61,24 @@
   }
 
   /* Change the color of links on hover */
-  .topnav a:hover {
+  a:hover {
     background-color: #ddd;
     color: black;
   }
 
-  .topnav a:focus {
+  a:focus {
     outline: 0;
   }
 
   /* Add an active class to highlight the current page */
-  .topnav a.active {
+  a.active {
     /*background-color: #4CAF50; original */
-    background-color: rgba(73, 150, 220, 0.94);
+    background-color: #4994d4;
     color: white;
+  }
+
+  a.active:hover {
+    background-color: #327bbf;
   }
 
   /* Hide the link that should open and close the topnav on small screens */
