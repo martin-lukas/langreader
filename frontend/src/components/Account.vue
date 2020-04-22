@@ -8,11 +8,11 @@
   </div>
 </template>
 
-<style>
+<style scoped>
   #account-page {
   }
 
-  #account-page p {
+  p {
     padding: 0.8em 0;
   }
 </style>
