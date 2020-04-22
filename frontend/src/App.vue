@@ -1,19 +1,19 @@
 <template>
   <div id="container">
-    <NavBar :selected="selectedArea" @area-selected="changeArea"/>
+    <TopNav :selected="selectedArea" @area-selected="changeArea"/>
     <ContentArea :selected="selectedArea" @area-selected="changeArea"/>
   </div>
 </template>
 
 <script>
-  import NavBar from './components/Navbar';
+  import TopNav from './components/TopNav';
   import ContentArea from './components/ContentArea';
 
   export default {
-    components: {NavBar, ContentArea},
+    components: {TopNav, ContentArea},
     data() {
       return {
-        selectedArea: 'home'
+        selectedArea: 'library'
       }
     },
     methods: {
@@ -29,17 +29,18 @@
     margin: 0;
     padding: 0;
     border: 0;
+    font-family: Arial, Helvetica, sans-serif;
   }
+
+  html, body {background-color: #CCC; height: 100vh}
 
   ul, li {list-style: none}
 
   #container {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    font-family: serif;
     margin: 0 auto;
+    background-color: white;
     max-width: 900px;
+    height: 100vh;
   }
 
   h2 {
