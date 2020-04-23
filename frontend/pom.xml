@@ -5,7 +5,7 @@
     <artifactId>frontend</artifactId>
 
     <parent>
-        <groupId>org.lukas</groupId>
+        <groupId>net.langreader</groupId>
         <artifactId>langreader</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
