@@ -12,6 +12,7 @@
 
 backend/target
 backend/src/main/resources/public
+backend/src/main/resources/application.properties
 
 frontend/target
 frontend/dist
