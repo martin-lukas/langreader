@@ -1,4 +1,4 @@
-package org.lukas.langreader.entity;
+package net.langreader.model;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -8,16 +8,14 @@ import lombok.ToString;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "words")
+@Table(name = "texts")
 @Getter @Setter @NoArgsConstructor @ToString
-public class Word {
+public class Text {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
-    private String word;
+    private String title;
 
-    @Enumerated
-    @Column(columnDefinition = "smallint")
-    private WordType type;
+    private String text;
 }

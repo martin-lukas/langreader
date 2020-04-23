@@ -1,4 +1,4 @@
-package org.lukas.langreader.entity;
+package net.langreader.model;
 
 public enum WordType {
     KNOWN,

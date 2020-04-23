@@ -1,4 +1,4 @@
-package org.lukas.langreader;
+package net.langreader;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

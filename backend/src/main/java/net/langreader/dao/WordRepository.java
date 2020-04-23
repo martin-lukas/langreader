@@ -1,6 +1,6 @@
-package org.lukas.langreader.dao;
+package net.langreader.dao;
 
-import org.lukas.langreader.entity.Word;
+import net.langreader.model.Word;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface WordRepository extends JpaRepository<Word, Long> {

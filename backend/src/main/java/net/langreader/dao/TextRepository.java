@@ -1,6 +1,6 @@
-package org.lukas.langreader.dao;
+package net.langreader.dao;
 
-import org.lukas.langreader.entity.Text;
+import net.langreader.model.Text;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface TextRepository extends JpaRepository<Text, Integer> {

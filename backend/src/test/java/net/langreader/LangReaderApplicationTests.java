@@ -1,4 +1,4 @@
-package org.lukas.langreader;
+package net.langreader;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

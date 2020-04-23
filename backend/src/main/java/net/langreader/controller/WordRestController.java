@@ -1,7 +1,7 @@
-package org.lukas.langreader.rest;
+package net.langreader.controller;
 
-import org.lukas.langreader.dao.WordRepository;
-import org.lukas.langreader.entity.Word;
+import net.langreader.dao.WordRepository;
+import net.langreader.model.Word;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

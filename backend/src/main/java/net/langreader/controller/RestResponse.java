@@ -1,4 +1,4 @@
-package org.lukas.langreader.rest;
+package net.langreader.controller;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
