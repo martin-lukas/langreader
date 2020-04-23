@@ -16,13 +16,8 @@
            @keyup.65="(e) => {updateWord(string.str, 'KNOWN'); focusNext(e)}"
            @keyup.83="(e) => {updateWord(string.str, 'STUDIED'); focusNext(e)}"
            @keyup.68="(e) => {updateWord(string.str, 'IGNORED'); focusNext(e)}"
-           @keyup.82="updateWord(string.str, null)">
-
-          {{ string.str.word }}
-        </a>
-        <template v-else>
-          {{ string.str.word }}
-        </template>
+           @keyup.82="updateWord(string.str, null)">{{ string.str.word }}</a>
+        <template v-else>{{ string.str.word }}</template>
       </template>
     </p>
   </div>
