@@ -1,8 +1,8 @@
 <template>
   <div id="reading-area" v-if="isEnriched">
-    <button @click="$emit('area-selected', 'Library')">
+    <router-link to="/library" id="back-button">
       &#8678;
-    </button>
+    </router-link>
     <h3>{{ textObj.title }}</h3>
     <p v-for="(paragraph, index) in paragraphs" :key="index">
       <template v-for="(string, index) in paragraph">
@@ -33,9 +33,7 @@
   import api from '../utils/backend-api';
 
   export default {
-    props: {
-      textId: Number
-    },
+    name: 'reading',
     data() {
       return {
         textObj: null,
@@ -46,17 +44,13 @@
       }
     },
     created() {
-      this.fetchText(this.textId).then(response => {
+      this.fetchText(this.$route.params.textId).then(response => {
         this.textObj = response.data;
         this.processInput(this.textObj);
         this.enrichWordsFromDB(this.getWordObjs());
-      })
-        .catch(err => {
-          console.error(err.response);
+      }).catch(err => {
+          console.error(err);
         });
-    },
-    updated() {
-      this.$nextTick(this.focusOnFirst());
     },
     methods: {
       fetchText(textId) {
@@ -76,7 +70,7 @@
           this.createParagraphs();
           this.isEnriched = true;
         }).catch(err => {
-          console.error(err.response);
+          console.error(err);
         });
       },
       getWordObjs() {
@@ -111,16 +105,6 @@
         }
         this.paragraphs = paragraphsOfStrings;
       },
-      // If there are performance issues with focus change - target paragraph nodes
-      focusOnFirst() {
-        const allWords = document.getElementById('reading-area').getElementsByTagName('a');
-        for (let i = 0; i < allWords.length; i++) {
-          if (utils.getClassName(allWords[i]) === '') {
-            allWords[i].focus({preventScroll: true});
-            break;
-          }
-        }
-      },
       focusPrevious(event) {
         const currentWord = event.target;
         const allWords = document.getElementById('reading-area').getElementsByTagName('a');
@@ -154,9 +138,9 @@
         if (oldType !== newType) {
           const updatedWordObj = {word: wordObj.word.toLowerCase(), type: newType};
           this.updateStrObjs([updatedWordObj]);
-          if (newType === null) { // remove whatever old type was
+          if (newType === null) {
             this.removeFromDB(updatedWordObj);
-          } else if (oldType === null) { // new word if type was null
+          } else if (oldType === null) {
             this.addToDB(updatedWordObj);
           } else {
             this.updateInDB(updatedWordObj);
@@ -165,17 +149,17 @@
       },
       addToDB(wordObj) {
         api.addWord(wordObj).catch(err => {
-          console.error(err.response);
+          console.error(err);
         });
       },
       updateInDB(wordObj) {
         api.updateWord(wordObj).catch(err => {
-          console.error(err.response);
+          console.error(err);
         });
       },
       removeFromDB(wordObj) {
         api.removeWord(wordObj).catch(err => {
-          console.error(err.response);
+          console.error(err);
         });
       }
     }
@@ -187,7 +171,7 @@
     user-select: none;
   }
 
-  button {
+  #back-button {
     font-size: 1.5em;
     background-color: #4994d4;
     color: white;
@@ -198,11 +182,11 @@
     cursor: pointer;
   }
 
-  button:hover {
+  #back-button:hover {
     background-color: #327bbf;
   }
 
-  button.toggled {
+  #back-button.toggled {
     background-color: #0a569a;
   }
 
