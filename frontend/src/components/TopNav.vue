@@ -36,6 +36,7 @@
     background-color: #333;
     overflow: hidden;
     border-radius: 0 0 10px 10px;
+    border-top: 2px groove #4994d4;
   }
 
   /* Style the links inside the navigation bar */
@@ -76,8 +77,7 @@
     display: none;
   }
 
-  /* When the screen is less than 600 pixels wide, hide all links, except for the first one
-  ("Library"). Show the link that contains should open and close the topnav (.icon) */
+  /* When the screen is less than 600 pixels wide, hide all links */
   @media screen and (max-width: 500px) {
     .topnav a:not(:last-child) {
       display: none;

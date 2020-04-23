@@ -1,17 +1,19 @@
 <template>
   <div id="container">
+    <Header/>
     <TopNav/>
     <ContentArea/>
   </div>
 </template>
 
 <script>
+  import Header from './components/Header';
   import TopNav from './components/TopNav';
   import ContentArea from './components/ContentArea';
 
   export default {
     name: 'app',
-    components: {TopNav, ContentArea}
+    components: {Header, TopNav, ContentArea}
   }
 </script>
 
