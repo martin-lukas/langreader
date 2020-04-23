@@ -18,6 +18,6 @@ public class Word {
     private String word;
 
     @Enumerated
-    @Column(columnDefinition = "smallint")
+    @Column(columnDefinition = "int")
     private WordType type;
 }
