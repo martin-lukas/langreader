@@ -1,14 +1,7 @@
 <template>
   <nav id="topnav" class="topnav">
-    <a v-for="(menuItem, index) in menuItems" :key="index"
-       href="#"
-       :class="(menuItem === selected) ? 'active' : ''"
-       @click.prevent="(e) => {
-         if (isToggled) {toggleTopNav();}
-         $emit('area-selected', menuItem);
-       }">
-      {{ menuItem }}
-    </a>
+    <router-link to="/library">Library</router-link>
+    <router-link to="/account">Account</router-link>
     <a href="javascript:void(0);" class="icon" @click="toggleTopNav">
       <i class="fa fa-bars"></i>
     </a>
@@ -17,17 +10,14 @@
 
 <script>
   export default {
-    props: {
-      selected: String
-    },
     data() {
       return {
-        isToggled: false,
-        menuItems: ['Library', 'Account']
+        isToggled: false
       }
     },
     methods: {
       toggleTopNav() {
+        console.log("toggled");
         let navbarElement = document.getElementById("topnav");
         if (navbarElement.className === "topnav") {
           navbarElement.className += " responsive";
@@ -71,13 +61,13 @@
   }
 
   /* Add an active class to highlight the current page */
-  a.active {
+  a.active-nav-item {
     /*background-color: #4CAF50; original */
     background-color: #4994d4;
     color: white;
   }
 
-  a.active:hover {
+  a.active-nav-item:hover {
     background-color: #327bbf;
   }
 
@@ -89,7 +79,7 @@
   /* When the screen is less than 600 pixels wide, hide all links, except for the first one
   ("Library"). Show the link that contains should open and close the topnav (.icon) */
   @media screen and (max-width: 500px) {
-    .topnav a:not(:first-child) {
+    .topnav a:not(:last-child) {
       display: none;
     }
 

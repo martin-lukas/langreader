@@ -1,15 +1,10 @@
 <template>
   <div id="text-list">
-    <a :text="textObj"
-       v-for="textObj in textObjs"
-       :key="textObj.id"
-       href="#"
-       @click.prevent="(e) => {
-         $emit('text-selected', textObj.id);
-         $emit('area-selected', 'Reading');
-       }">
+    <router-link v-for="textObj in textObjs"
+                 :key="textObj.id"
+                 :to="'/reading/' + textObj.id">
       {{ textObj.title }}
-    </a>
+    </router-link>
   </div>
 </template>
 

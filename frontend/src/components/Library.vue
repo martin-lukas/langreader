@@ -12,18 +12,17 @@
     </div>
     <AddTextForm v-if="isToggledAddText"
                  @add-text="addTextToDB"/>
-    <TextList :textObjs="shownTextObjs"
-              @text-selected="selectText"
-              @area-selected="changeArea"/>
+    <TextList :textObjs="shownTextObjs"/>
   </div>
 </template>
 
 <script>
   import api from '../utils/backend-api';
-  import AddTextForm from "./AddTextForm";
-  import TextList from "./TextList";
+  import AddTextForm from "./subcomponents/AddTextForm";
+  import TextList from "./subcomponents/TextList";
 
   export default {
+    name: 'library',
     components: {AddTextForm, TextList},
     data() {
       return {
@@ -39,7 +38,7 @@
           this.textObjs = response.data;
           this.shownTextObjs = this.textObjs;
         }).catch(err => {
-          console.error(err.response);
+          console.error(err);
         });
       },
       filterTexts() {
@@ -52,7 +51,7 @@
         api.addText(textObj).then(response => {
           this.fetchTextTitles();
         }).catch(err => {
-          console.error(err.response);
+          console.error(err);
         });
       },
       toggleAddTextForm() {

@@ -1,7 +1,7 @@
 <template>
   <div id="container">
-    <TopNav :selected="selectedArea" @area-selected="changeArea"/>
-    <ContentArea :selected="selectedArea" @area-selected="changeArea"/>
+    <TopNav/>
+    <ContentArea/>
   </div>
 </template>
 
@@ -10,17 +10,8 @@
   import ContentArea from './components/ContentArea';
 
   export default {
-    components: {TopNav, ContentArea},
-    data() {
-      return {
-        selectedArea: 'Library'
-      }
-    },
-    methods: {
-      changeArea(area) {
-        this.selectedArea = area;
-      }
-    }
+    name: 'app',
+    components: {TopNav, ContentArea}
   }
 </script>
 
