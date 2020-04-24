@@ -1,5 +1,5 @@
-const nonWordChars = '.,!?:;"(){}\\[\\]<>„“”…¿¡=@#';
-const regexp = new RegExp(`([${nonWordChars}]*)([^0-9${nonWordChars}]+)([${nonWordChars}]*)`);
+const nonWordChars = '0-9.,!?:;"(){}\\[\\]<>„“”…¿¡=@#';
+const regexp = new RegExp(`([${nonWordChars}]*)([^${nonWordChars}]+)([${nonWordChars}]*)`);
 
 export default {
   parseString(string) {
@@ -9,8 +9,13 @@ export default {
       results.push({str: {word: string, type: null}, isWord: false});
     } else {
       for (let i = 1; i <= 3; i++) {
-        if (matches[i]) {
-          results.push({str: {word: matches[i], type: null}, isWord: (i === 2)}); // matches[2] contains word
+        if (matches[i]) {// matches[2] contains word
+          results.push(
+            {
+              str: {word: matches[i], type: null},
+              isWord: (i === 2)
+            }
+          );
         }
       }
     }
@@ -20,10 +25,16 @@ export default {
     let strings = paragraphText.trim().split(/\s+/); // + / char for splitting;
     let results = [];
     strings.forEach(string => {
-      results = [...results, ...this.parseString(string), ...[{
-        str: {word: ' ', type: null},
-        isWord: false
-      }]];
+      results = [
+        ...results,
+        ...this.parseString(string),
+        ...[
+          {
+            str: {word: ' ', type: null},
+            isWord: false
+          }
+        ]
+      ];
     });
     return results;
   },
