@@ -44,8 +44,9 @@
         this.processInput(this.textObj);
         this.enrichWordsFromDB(this.getWordObjs());
       }).catch(err => {
-          console.error(err);
-        });
+        console.error(err);
+        this.$router.push({name: 'notfound'});
+      });
     },
     methods: {
       fetchText(textId) {
