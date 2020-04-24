@@ -1,9 +1,11 @@
 import axios from 'axios';
 
 const AXIOS = axios.create({
-  // baseURL: 'http://18.185.128.105/api',
-  baseURL: 'http://localhost:8088/api',
+  baseURL: process.env.NODE_ENV !== 'production'
+    ? 'http://localhost:8088/api'
+    : 'http://langreader.net/api',
   headers: {
+    'Content-type': 'application/json',
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods': 'POST, GET, PUT, DELETE',
     'Access-Control-Allow-Headers': 'Content-Type, X-Auth-Token, Origin, Authorization'
@@ -11,6 +13,9 @@ const AXIOS = axios.create({
 });
 
 export default {
+  authUser() {
+    return AXIOS.get('/auth/user');
+  },
   enrichWords(wordObjs) {
     return AXIOS.post('/words/enrich', wordObjs);
   },
