@@ -10,9 +10,10 @@
 *.war
 *.ear
 
+scripts/
+
 backend/target
-backend/src/main/resources/public
-backend/src/main/resources/application.properties
+backend/src/main/resources/
 
 frontend/target
 frontend/dist
