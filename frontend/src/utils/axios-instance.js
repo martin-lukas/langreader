@@ -19,10 +19,7 @@ axiosInstance.interceptors.request.use((config) => ({
   ...config,
   headers: {
     ...{
-      'Content-type': 'application/json',
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'POST, GET, PUT, DELETE',
-      'Access-Control-Allow-Headers': 'Content-Type, X-Auth-Token, Origin, Authorization'
+      'Content-type': 'application/json'
     },
     ...authHeader()
   }
