@@ -3,6 +3,7 @@ package net.langreader.security;
 import net.langreader.security.jwt.AuthEntryPointJwt;
 import net.langreader.security.jwt.AuthTokenFilter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -51,6 +52,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         return new BCryptPasswordEncoder();
     }
 
+    @Value("${langreader.app.httpsEnabled}")
+    private boolean isHttpsAllowed;
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.cors().and().csrf().disable()
@@ -66,8 +70,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(
                         "/api/users/**").hasRole("ADMIN")
                 .anyRequest().permitAll();
-        // comment out this line on localhost
-//        http.requiresChannel().anyRequest().requiresSecure();
+
+        if (isHttpsAllowed) {
+            http.requiresChannel().anyRequest().requiresSecure();
+        }
 
         http.addFilterBefore(
                 authenticationJwtTokenFilter(),

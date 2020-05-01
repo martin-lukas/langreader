@@ -12,7 +12,7 @@ function authHeader() {
 const axiosInstance = axios.create({
   baseURL: process.env.NODE_ENV !== 'production'
     ? 'http://localhost:8080/api'
-    : 'https://langreader.net/api'
+    : 'https://www.langreader.net/api'
 });
 
 axiosInstance.interceptors.request.use((config) => ({
