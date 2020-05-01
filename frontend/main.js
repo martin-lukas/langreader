@@ -4,8 +4,6 @@ import App from './src/App';
 import router from './src/router';
 import store from './src/store';
 
-// TODO: git.. and remove scripts and application.properties
-// TODO: rewrite the deploying scripts so the DB doesnt overwrite every time
 // TODO: again happened that repeated word disappeared but focus didnt move after...
 // TODO: start logging which user is doing what
 // TODO: EXAMINE SQL INJECTION WITH ' CHARS IN WORDS
