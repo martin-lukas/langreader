@@ -18,6 +18,14 @@ public class Word {
     private String word;
 
     @Enumerated
-    @Column(columnDefinition = "int")
+    @Column(columnDefinition = "int", name = "type_id")
     private WordType type;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "lang_id")
+    private Language language;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
 }

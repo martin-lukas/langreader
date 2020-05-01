@@ -1,83 +1,116 @@
 package net.langreader.controller;
 
+import net.langreader.dao.UserRepository;
 import net.langreader.dao.WordRepository;
+import net.langreader.model.Language;
+import net.langreader.model.User;
 import net.langreader.model.Word;
+import net.langreader.security.jwt.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/words")
 public class WordRestController {
-    private final WordRepository wordRepository;
-
     @Autowired
-    public WordRestController(WordRepository wordRepository) {
-        this.wordRepository = wordRepository;
-    }
+    private UserRepository userRepository;
+    @Autowired
+    private WordRepository wordRepository;
+    @Autowired
+    private JwtUtils jwtUtils;
 
     @PostMapping("/enrich")
-    public ResponseEntity<List<Word>> enrichWords(@RequestBody List<Word> words) {
-        List<Word> enrichedWords = new ArrayList<>();
-        for (Word typelessWord : words) {
-            Word foundWord = wordRepository.findByWord(typelessWord.getWord().toLowerCase());
-            if (foundWord != null) {
-                typelessWord.setType(foundWord.getType());
+    public ResponseEntity<List<Word>> enrichWords(
+            HttpServletRequest req, @RequestBody List<Word> words) {
+        String username = jwtUtils.getUsernameFromHttpRequest(req);
+        Optional<User> userOpt = userRepository.findByUsername(username);
+        if (userOpt.isPresent()) {
+            User user = userOpt.get();
+            List<Word> enrichedWords = new ArrayList<>();
+            for (Word typelessWord : words) {
+                Optional<Word> foundWord = wordRepository.findByWordAndLanguageAndUser(
+                        typelessWord.getWord().toLowerCase(), user.getChosenLang(), user);
+                if (foundWord.isPresent()) {
+                    typelessWord.setType(foundWord.get().getType());
+                    enrichedWords.add(typelessWord);
+                }
             }
-            enrichedWords.add(typelessWord);
+            return new ResponseEntity<>(enrichedWords, HttpStatus.OK);
         }
-        return new ResponseEntity<>(enrichedWords, HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
     @PostMapping
-    public ResponseEntity<Word> addWord(@RequestBody Word newWord) {
-        String newWordVal = newWord.getWord();
-        if (newWordVal == null || newWordVal.isEmpty() || newWord.getType() == null) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        } else if (wordRepository.existsByWord(newWordVal)) {
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
-        } else {
-            newWord.setId(null);
-            // to ensure case-insensitivity of tokens
-            newWord.setWord(newWord.getWord());
-            wordRepository.save(newWord);
-            return new ResponseEntity<>(HttpStatus.OK);
+    public ResponseEntity<?> addWord(HttpServletRequest req, @RequestBody Word newWord) {
+        String username = jwtUtils.getUsernameFromHttpRequest(req);
+        Optional<User> userOpt = userRepository.findByUsername(username);
+        if (userOpt.isPresent()) {
+            String newWordVal = newWord.getWord();
+            if (newWordVal != null && !newWordVal.isEmpty() && newWord.getType() != null) {
+                User user = userOpt.get();
+                Language chosenLang = user.getChosenLang();
+                if (!wordRepository.existsByWordAndLanguageAndUser(newWordVal, chosenLang, user)) {
+                    newWord.setId(null);
+                    newWord.setLanguage(user.getChosenLang());
+                    newWord.setUser(user);
+                    wordRepository.save(newWord);
+                    return new ResponseEntity<>(HttpStatus.OK);
+                } else {
+                    return new ResponseEntity<>(HttpStatus.CONFLICT);
+                }
+            }
         }
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
     @PutMapping
-    public ResponseEntity<Word> updateWord(@RequestBody Word word) {
-        String wordVal = word.getWord();
-        if (wordVal == null || wordVal.isEmpty() || word.getType() == null) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        } else if (!wordRepository.existsByWord(wordVal)) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } else {
-            Word foundWord = wordRepository.findByWord(word.getWord());
-            // already checked that it's in the DB
-            // also, saving the found obj to preserve case-insensivity
-            foundWord.setType(word.getType());
-            wordRepository.save(foundWord);
-            return new ResponseEntity<>(HttpStatus.OK);
+    public ResponseEntity<?> updateWord(HttpServletRequest req, @RequestBody Word word) {
+        String username = jwtUtils.getUsernameFromHttpRequest(req);
+        Optional<User> userOpt = userRepository.findByUsername(username);
+        if (userOpt.isPresent()) {
+            String wordVal = word.getWord();
+            if (wordVal != null && !wordVal.isEmpty() && word.getType() != null) {
+                User user = userOpt.get();
+                Optional<Word> foundWordOpt = wordRepository.findByWordAndLanguageAndUser(
+                        word.getWord(), user.getChosenLang(), user);
+                if (foundWordOpt.isPresent()) {
+                    Word foundWord = foundWordOpt.get();
+                    foundWord.setType(word.getType());
+                    wordRepository.save(foundWord);
+                    return new ResponseEntity<>(HttpStatus.OK);
+                } else {
+                    return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                }
+            }
         }
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
     @DeleteMapping
-    public ResponseEntity<Word> deleteWord(@RequestBody Word word) {
-        String wordVal = word.getWord();
-        if (wordVal == null || wordVal.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        } else if (!wordRepository.existsByWord(wordVal)) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } else {
-            Word foundWord = wordRepository.findByWord(word.getWord());
-            // already checked that it's in the DB
-            wordRepository.delete(foundWord);
-            return new ResponseEntity<>(HttpStatus.OK);
+    public ResponseEntity<?> deleteWord(HttpServletRequest req, @RequestBody Word word) {
+        String username = jwtUtils.getUsernameFromHttpRequest(req);
+        Optional<User> userOpt = userRepository.findByUsername(username);
+        if (userOpt.isPresent()) {
+            String wordVal = word.getWord();
+            if (wordVal != null && !wordVal.isEmpty()) {
+                User user = userOpt.get();
+                Optional<Word> foundWordOpt = wordRepository.findByWordAndLanguageAndUser(
+                        word.getWord(), user.getChosenLang(), user);
+                if (foundWordOpt.isPresent()) {
+                    wordRepository.delete(foundWordOpt.get());
+                    return new ResponseEntity<>(HttpStatus.OK);
+                } else {
+                    return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                }
+            }
         }
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 }
