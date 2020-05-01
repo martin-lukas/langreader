@@ -30,6 +30,8 @@
     --active-el-color-light: #67b6f6;
     --active-el-color-dark: #2175bf;
     --default-text-color: #333;
+    --input-border-gray: #e5e5e5;
+    --input-border-gray-dark: #bbbbbb;
   }
 
   * {
@@ -74,7 +76,7 @@
     font-size: 0.95em;
     width: 100%;
     padding: 8px;
-    border: 2px groove #e5e5e5;
+    border: 2px groove var(--input-border-gray);
     border-radius: 5px;
   }
 
