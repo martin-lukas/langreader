@@ -1,8 +1,24 @@
 <template>
-  <nav id="topnav" class="topnav">
-    <router-link to="/library">Library</router-link>
-    <router-link to="/account">Account</router-link>
-    <a href="javascript:void(0);" class="icon" @click="toggleTopNav">
+  <nav id="top-nav" class="top-nav" @click="collapseTopNav">
+    <router-link to="/" class="always-visible nav-link">Home</router-link>
+    <router-link v-if="currentUser && !isAdmin && chosenLang"
+                 to="/library"
+                 class="always-visible nav-link">
+      Library
+    </router-link>
+    <div class="right-aligned">
+      <router-link v-if="!currentUser" to="/login" class="nav-link">Log In</router-link>
+      <router-link v-if="!currentUser" to="/register" class="nav-link">Sign Up</router-link>
+      <router-link v-if="currentUser && !isAdmin"
+                   to="/language"
+                   class="nav-link lang-link">
+        Lang: {{ chosenLangLabel }}
+      </router-link>
+      <router-link v-if="isAdmin" to="/admin" class="nav-link">Administration</router-link>
+      <router-link v-if="currentUser" to="/account" class="nav-link">My Account</router-link>
+      <a v-if="currentUser" @click.prevent="logOut" class="nav-link">Log Out</a>
+    </div>
+    <a href="javascript:void(0);" class="icon" @click.stop="toggleTopNav">
       <i class="fa fa-bars"></i>
     </a>
   </nav>
@@ -10,103 +26,132 @@
 
 <script>
   export default {
-    data() {
-      return {
-        isToggled: false
+    computed: {
+      currentUser() {
+        return this.$store.state.auth.user;
+      },
+      isAdmin() {
+        if (this.currentUser && this.currentUser.roles) {
+          return this.currentUser.roles.includes('ROLE_ADMIN');
+        }
+        return false;
+      },
+      chosenLang() {
+        return this.$store.getters["lang/chosenLang"];
+      },
+      chosenLangLabel() {
+        return (this.chosenLang) ? this.chosenLang.fullName : 'none';
       }
     },
     methods: {
       toggleTopNav() {
-        console.log("toggled");
-        let navbarElement = document.getElementById("topnav");
-        if (navbarElement.className === "topnav") {
-          navbarElement.className += " responsive";
+        let navBarElement = document.getElementById("top-nav");
+        if (navBarElement.className === "top-nav") {
+          navBarElement.className += " responsive";
         } else {
-          navbarElement.className = "topnav";
+          navBarElement.className = "top-nav";
         }
-        this.isToggled = !this.isToggled;
+      },
+      collapseTopNav() {
+        let navBarElement = document.getElementById("top-nav");
+        navBarElement.className = "top-nav";
+      },
+      logOut() {
+        this.$store.dispatch('auth/logout');
+        this.$router.push('/login');
       }
     }
   }
 </script>
 
 <style scoped>
-  /* Add a black background color to the top navigation */
-  .topnav {
-    background-color: #333;
+  .top-nav {
+    background-color: var(--default-text-color);
     overflow: hidden;
     border-radius: 0 0 10px 10px;
-    border-top: 2px groove #4994d4;
+    border-top: 2px groove var(--active-el-color);
+    font-size: 0.95em;
+    user-select: none;
   }
 
-  /* Style the links inside the navigation bar */
-  a {
+  .right-aligned {
+    float: right;
+  }
+
+  a.nav-link, a.icon {
+    overflow: visible;
     float: left;
     display: block;
     color: #f2f2f2;
     text-align: center;
-    padding: 14px 16px;
+    padding: 10px 16px;
     text-decoration: none;
-    font-size: 17px;
     font-weight: bold;
+    cursor: pointer;
   }
 
-  /* Change the color of links on hover */
-  a:hover {
-    background-color: #ddd;
-    color: black;
+  a.lang-link {
+    color: var(--active-el-color-light);
   }
 
-  a:focus {
-    outline: 0;
-  }
-
-  /* Add an active class to highlight the current page */
-  a.active-nav-item {
-    /*background-color: #4CAF50; original */
-    background-color: #4994d4;
+  a.lang-link.active-nav-item {
     color: white;
   }
 
-  a.active-nav-item:hover {
-    background-color: #327bbf;
+  .active-nav-item {
+    background-color: var(--active-el-color);
+    color: white;
   }
 
-  /* Hide the link that should open and close the topnav on small screens */
-  .topnav .icon {
+  .active-nav-item:hover {
+    background-color: var(--active-el-color-dark);
+    color: white;
+  }
+
+  a:hover {
+    background-color: #eee;
+    color: var(--default-text-color);
+  }
+
+  /* Hide the link that should open and close the top-nav on small screens */
+  .top-nav .icon {
     display: none;
   }
 
   /* When the screen is less than 600 pixels wide, hide all links */
   @media screen and (max-width: 500px) {
-    .topnav a:not(:last-child) {
+    .top-nav a:not(.always-visible) {
       display: none;
     }
 
-    .topnav a.icon {
+    .top-nav a.icon {
       float: right;
       display: block;
     }
   }
 
-  /* The "responsive" class is added to the topnav with JavaScript when the user clicks
-  on the icon. This class makes the topnav look good on small screens (display the links
+  /* The "responsive" class is added to the top-nav with JavaScript when the user clicks
+  on the icon. This class makes the top-nav look good on small screens (display the links
   vertically instead of horizontally) */
   @media screen and (max-width: 500px) {
-    .topnav.responsive {
+    .top-nav.responsive {
       position: relative;
     }
 
-    .topnav.responsive a.icon {
+    .top-nav.responsive a.icon {
       position: absolute;
       right: 0;
       top: 0;
     }
 
-    .topnav.responsive a {
+    .top-nav.responsive a {
       float: none;
       display: block;
       text-align: left;
+    }
+
+    .top-nav.responsive .right-aligned {
+      float: none;
     }
   }
 </style>

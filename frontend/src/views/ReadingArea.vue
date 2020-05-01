@@ -25,7 +25,8 @@
 
 <script>
   import utils from "../utils/utils";
-  import api from '../utils/backend-api';
+  import WordService from '../services/word.service';
+  import TextService from '../services/text.service';
 
   export default {
     name: 'reading',
@@ -39,18 +40,27 @@
       }
     },
     created() {
-      this.fetchText(this.$route.params.textId).then(response => {
-        this.textObj = response.data;
-        this.processInput(this.textObj);
-        this.enrichWordsFromDB(this.getWordObjs());
-      }).catch(err => {
-        console.error(err);
-        this.$router.push({name: 'notfound'});
-      });
+      if (!this.currentUser) {
+        this.$router.push('/login');
+      } else {
+        this.fetchText(this.$route.params.textId).then(response => {
+          this.textObj = response.data;
+          this.processInput(this.textObj);
+          this.enrichWordsFromDB(this.getWordObjs());
+        }).catch(err => {
+          console.error(err);
+          this.$router.push({name: 'notfound'});
+        });
+      }
+    },
+    computed: {
+      currentUser() {
+        return this.$store.state.auth.user;
+      }
     },
     methods: {
       fetchText(textId) {
-        return api.getTextById(textId);
+        return TextService.getTextById(textId);
       },
       processInput(textObj) {
         const paragraphTexts = textObj.text.split('\n');
@@ -61,7 +71,7 @@
         });
       },
       enrichWordsFromDB(wordObjs) {
-        api.enrichWords(wordObjs).then(response => {
+        WordService.enrichWords(wordObjs).then(response => {
           this.updateStrObjs(response.data);
           this.createParagraphs();
           this.isEnriched = true;
@@ -144,17 +154,17 @@
         }
       },
       addToDB(wordObj) {
-        api.addWord(wordObj).catch(err => {
+        WordService.addWord(wordObj).catch(err => {
           console.error(err);
         });
       },
       updateInDB(wordObj) {
-        api.updateWord(wordObj).catch(err => {
+        WordService.updateWord(wordObj).catch(err => {
           console.error(err);
         });
       },
       removeFromDB(wordObj) {
-        api.removeWord(wordObj).catch(err => {
+        WordService.removeWord(wordObj).catch(err => {
           console.error(err);
         });
       }
