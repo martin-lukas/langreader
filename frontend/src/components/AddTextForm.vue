@@ -1,5 +1,10 @@
 <template>
-  <div id="add-text-form">
+  <div id="add-text-area">
+    <div id="method-btns-area">
+      <label>Choose method:</label>
+      <button class="method-btn" @click="() => { this.isTextChosen = true }">Text</button>
+      <button class="method-btn" @click="() => { this.isTextChosen = false }">from URL</button>
+    </div>
     <div>
       <label for="input-title">Title:</label>
       <input type="text"
@@ -7,10 +12,18 @@
              v-model="titleInput"/>
     </div>
     <div class="lower-form-group">
-      <label for="input-text">Text:</label>
-      <textarea type="text"
-                id="input-text"
-                v-model="textInput"/>
+      <label for="input-text">
+        <template v-if="isTextChosen">Text:</template>
+        <template v-else>URL:</template>
+      </label>
+      <template v-if="isTextChosen">
+        <textarea type="text"
+                  id="input-text"
+                  v-model="textInput"/>
+      </template>
+      <template v-else>
+        <input type="text" id="input-url" v-model="urlInput"/>
+      </template>
     </div>
     <div id="add-button-div">
       <button @click="sendAddText">Add</button>
@@ -19,30 +32,47 @@
 </template>
 
 <script>
+  import ExtService from '../services/ext.service';
+
   export default {
     data() {
       return {
         titleInput: '',
-        textInput: ''
+        textInput: '',
+        urlInput: '',
+        isTextChosen: true
       }
     },
     methods: {
       sendAddText() {
         const trimmedTitle = this.titleInput.trim();
-        const trimmedText = this.textInput.trim();
-        if (trimmedTitle && trimmedText) {
-          this.$emit('add-text', { title: trimmedTitle, text: trimmedText });
+        if (trimmedTitle) {
+          if (this.isTextChosen) {
+            const trimmedText = this.textInput.trim();
+            if (trimmedText) {
+              this.$emit('add-text', {title: trimmedTitle, text: trimmedText});
+            }
+          } else {
+            const trimmedUrl = this.urlInput.trim();
+            if (trimmedUrl) {
+              ExtService.getExtResponse(trimmedUrl).then(response => {
+                this.$emit('add-text', {title: trimmedTitle, text: response.data});
+              }).catch((err) => {
+                console.log(err);
+              });
+            }
+          }
         }
+      },
+      mounted() {
+        document.getElementById('input-title').focus();
       }
-    },
-    mounted() {
-      document.getElementById('input-title').focus();
     }
   }
 </script>
 
 <style scoped>
-  #add-text-form {
+  #add-text-area {
     text-align: left;
     border-radius: 5px;
     background-color: #f2f2f2;
@@ -50,12 +80,38 @@
     padding: 13px 13px;
   }
 
+  #method-btns-area {
+    padding: 0 0 10px 0;
+  }
+
+  .method-btn {
+    margin: 0 0 0 10px;
+    font-size: 1em;
+    font-weight: normal;
+    background-color: white;
+    color: var(--default-text-color);
+    padding: 3px 8px;
+    border-width: 1px;
+    border-style: solid;
+    border-color: var(--input-border-gray-dark);
+    outline: 0;
+    cursor: pointer;
+  }
+
+  .method-btn:hover {
+    background-color: var(--input-border-gray);
+  }
+
+  .method-btn:focus {
+    background-color: var(--input-border-gray-dark);
+  }
+
   .lower-form-group {
     margin-top: 10px;
   }
 
   textarea {
-    height: 80px;
+    height: 150px;
     resize: none;
   }
 

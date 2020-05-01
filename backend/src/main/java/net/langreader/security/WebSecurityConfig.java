@@ -66,7 +66,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(
                         "/api/words/**",
                         "/api/texts/**",
-                        "/api/langs/**").authenticated()
+                        "/api/langs/**",
+                        "/api/ext/**").authenticated()
                 .antMatchers(
                         "/api/users/**").hasRole("ADMIN")
                 .anyRequest().permitAll();
