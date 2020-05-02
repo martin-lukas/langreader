@@ -120,8 +120,8 @@
     display: none;
   }
 
-  /* When the screen is less than 600 pixels wide, hide all links */
-  @media screen and (max-width: 500px) {
+  /* When the screen is less than 550 pixels wide, hide all links */
+  @media screen and (max-width: 550px) {
     .top-nav a:not(.always-visible) {
       display: none;
     }
@@ -135,7 +135,7 @@
   /* The "responsive" class is added to the top-nav with JavaScript when the user clicks
   on the icon. This class makes the top-nav look good on small screens (display the links
   vertically instead of horizontally) */
-  @media screen and (max-width: 500px) {
+  @media screen and (max-width: 550px) {
     .top-nav.responsive {
       position: relative;
     }
