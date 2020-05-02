@@ -1,25 +1,30 @@
 <template>
-  <div id="reading-area" v-if="isEnriched">
-    <router-link to="/library" id="back-button">
-      &#8678;
-    </router-link>
-    <h3>{{ textObj.title }}</h3>
-    <p v-for="(paragraph, index) in paragraphs" :key="index">
-      <template v-for="(string, index) in paragraph">
-        <a v-if="string.isWord"
-           href="#"
-           :class="string.str.type"
-           :key="index"
-           @click.prevent
-           @keyup.37="focusPrevious"
-           @keyup.39="focusNext"
-           @keyup.65="(e) => {updateWord(string.str, 'KNOWN'); focusNext(e)}"
-           @keyup.83="(e) => {updateWord(string.str, 'STUDIED'); focusNext(e)}"
-           @keyup.68="(e) => {updateWord(string.str, 'IGNORED'); focusNext(e)}"
-           @keyup.82="updateWord(string.str, null)">{{ string.str.word }}</a>
-        <template v-else>{{ string.str.word }}</template>
-      </template>
-    </p>
+  <div>
+    <div v-if="!isEnriched" id="loading-div">
+      <h3>Loading...</h3>
+    </div>
+    <div id="reading-area" v-else>
+      <router-link to="/library" id="back-button">
+        &#8678;
+      </router-link>
+      <h3>{{ textObj.title }}</h3>
+      <p v-for="(paragraph, index) in paragraphs" :key="index">
+        <template v-for="(string, index) in paragraph">
+          <a v-if="string.isWord"
+             href="#"
+             :class="string.str.type"
+             :key="index"
+             @click.prevent
+             @keyup.37="focusPrevious"
+             @keyup.39="focusNext"
+             @keyup.65="(e) => {updateWord(e, string.str, 'KNOWN')}"
+             @keyup.83="(e) => {updateWord(e, string.str, 'STUDIED')}"
+             @keyup.68="(e) => {updateWord(e, string.str, 'IGNORED')}"
+             @keyup.82="(e) => {updateWord(e, string.str, null)}">{{ string.str.word }}</a>
+          <template v-else>{{ string.str.word }}</template>
+        </template>
+      </p>
+    </div>
   </div>
 </template>
 
@@ -90,7 +95,7 @@
           ))
         );
       },
-      updateStrObjs(wordObjs) { // TODO: improve performance here... make it async?
+      updateStrObjs(wordObjs) {
         wordObjs.forEach(wordObj => {
           this.strObjs.forEach(strObj => {
             if (strObj.str.word.toLowerCase() === wordObj.word.toLowerCase()) {
@@ -98,6 +103,25 @@
             }
           });
         });
+      },
+      updateWord(event, wordObj, newType) {
+        const oldType = wordObj.type;
+        if (oldType !== newType) {
+          const updatedWordObj = {word: wordObj.word.toLowerCase(), type: newType};
+          this.updateStrObjs([updatedWordObj]);
+          if (newType === null) {
+            this.removeFromDB(updatedWordObj);
+          } else if (oldType === null) {
+            this.addToDB(updatedWordObj);
+          } else {
+            this.updateInDB(updatedWordObj);
+          }
+          if (newType !== null) {
+            this.$nextTick(() => {
+              this.focusNext(event);
+            });
+          }
+        }
       },
       createParagraphs() {
         const strings = [...this.strObjs];
@@ -139,20 +163,6 @@
           }
         }
       },
-      updateWord(wordObj, newType) {
-        const oldType = wordObj.type;
-        if (oldType !== newType) {
-          const updatedWordObj = {word: wordObj.word.toLowerCase(), type: newType};
-          this.updateStrObjs([updatedWordObj]);
-          if (newType === null) {
-            this.removeFromDB(updatedWordObj);
-          } else if (oldType === null) {
-            this.addToDB(updatedWordObj);
-          } else {
-            this.updateInDB(updatedWordObj);
-          }
-        }
-      },
       addToDB(wordObj) {
         WordService.addWord(wordObj).catch(err => {
           console.error(err);
@@ -175,6 +185,11 @@
 <style scoped>
   #reading-area {
     user-select: none;
+    font-size: 1.1em;
+  }
+
+  #loading-div {
+    text-align: center;
   }
 
   #back-button {
