@@ -8,7 +8,7 @@
       <button id="add-text-btn"
               @click="toggleAddTextForm"
               :class="(isToggledAddText) ? 'toggled' : ''">
-        +
+        <i class="fas fa-plus"></i>
       </button>
     </div>
     <AddTextForm v-if="isToggledAddText" @add-text="splitTextAndAddToDB"/>
@@ -159,13 +159,13 @@
   }
 
   #add-text-btn {
-    font-size: 1.7em;
+    font-size: 1.4em;
     background-color: var(--active-el-color);
     color: white;
     padding: 2px 10px;
     margin-left: 10px;
     border: none;
-    border-radius: 10px;
+    border-radius: 20%;
     outline: 0;
     cursor: pointer;
   }
