@@ -29,8 +29,11 @@
     --active-el-color: #4994d4;
     --active-el-color-light: #67b6f6;
     --active-el-color-dark: #2175bf;
+    --active-el-color-darker: rgba(1, 95, 168, 0.82);
+    --active-el-color-darkest: rgba(0, 79, 141, 0.76);
     --default-text-color: #333;
     --input-border-gray: #e5e5e5;
+    --input-border-gray-light: #f0f0f0;
     --input-border-gray-dark: #bbbbbb;
   }
 
@@ -61,15 +64,36 @@
     background-color: #f0f0f0;
   }
 
+  hr {
+    border: 1px solid var(--active-el-color);
+  }
+
   ul, li {
     list-style: none
   }
 
+  h1, h2 {
+    color: var(--active-el-color-darker);
+  }
+
+  h1 {
+    font-size: 2.2em;
+    text-align: center;
+    margin: 10px 0 10px 0;
+  }
+
   h2 {
-    font-size: 2.5em;
-    font-weight: normal;
-    margin: 0.5em;
-    padding: 0;
+    font-size: 1.6em;
+    margin: 25px 0 15px 0;
+  }
+
+  h3 {
+    font-size: 1.5em;
+    margin: 0.9em 0 0.2em 0;
+  }
+
+  p {
+    margin: 20px 0;
   }
 
   input, textarea {
@@ -99,11 +123,11 @@
     margin: 0 auto;
     background-color: white;
     border-radius: 0 0 10px 10px;
-    max-width: 900px;
+    max-width: 850px;
     min-width: 210px;
   }
 
   #content-area {
-    padding: 15px;
+    padding: 20px;
   }
 </style>
