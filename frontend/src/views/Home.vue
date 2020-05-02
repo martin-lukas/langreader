@@ -3,7 +3,7 @@
     <template v-if="!isLoggedIn">
       <h1>Welcome to LangReader!</h1>
       <hr>
-      <p>This is a web application for studying languages through reading. The main idea is that
+      <p>This is a website for studying languages through reading. The main idea is that
         you add texts you actually want to read and understand, and by selecting which words you
         know, we track your progress in your language learning.</p>
       <p>You can select words you don't know, and the app will keep track of them for you, so you
@@ -13,8 +13,6 @@
         algorithm will try to save the main text from the provided URL. This might not be 100%
         successful, but based on my testing, it seems fairly accurate. If the text is too long,
       it will be split into manageable chunks, in order for the webpage to stay responsive.</p>
-      <p>In the future, there will be statistics of the learned words across the languages, new ways
-        of adding texts (maybe even from e-books), and a full mobile touch support.</p>
       <p>I wish you a pleasant learning experience with this website.</p>
     </template>
     <template v-else>
@@ -80,16 +78,14 @@
         your learning.</p>
       <h2>Account Page</h2>
       <p>This section is still being worked on.</p>
-      <p>&nbsp;.</p>
     </template>
     <p>Planned features:</p>
     <ul>
       <li>instant translation of a word marked as studied</li>
       <li>editing already submitted texts</li>
       <li>section for going through studied words (+ their translation)</li>
-      <li>possibly export of these studied words into a structured file</li>
+      <li>possibly export of these studied words into a structured file (e.g. for Anki)</li>
       <li>touch controls for reading even on a smartphone / tablet</li>
-      <li>statistics of words and languages on the account page</li>
       <li>hypothetically: upload an ebook file and automatically split it into chapters and
         add those to the library
       </li>
