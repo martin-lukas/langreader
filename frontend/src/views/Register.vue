@@ -1,46 +1,32 @@
 <template>
   <div id="register-view">
     <h3>Register Page</h3>
-    <div v-if="message">{{message}}</div>
-    <form id="register-form" name="form" @submit.prevent="handleRegister">
-      <div v-if="!isSuccessful">
-        <div><!-- User field -->
-          <label for="username-input">Username</label>
-          <input id="username-input"
-                 name="username"
-                 type="text"
-                 v-model="user.username"
-                 v-validate="'required'"/>
-          <div v-if="isSubmitted && errors.has('username')">
-            {{errors.first('username')}}
-          </div>
-        </div><!-- Password field -->
-        <div class="lower-form-group">
-          <label for="password-input">Password</label>
-          <input id="password-input"
-                 type="password"
-                 name="password"
-                 v-model="user.password"
-                 v-validate="'required'"/>
-          <div v-if="isSubmitted && errors.has('password')">
-            {{errors.first('password')}}
-          </div>
-        </div><!-- Confirm field -->
-        <div class="lower-form-group">
-          <label for="password-confirm-input">Confirm Password</label>
-          <input id="password-confirm-input"
-                 name="password-confirm"
-                 type="password"
-                 v-model="confirmPassword"
-                 v-validate="'required|confirmed:password'"
-                 ref="password"/>
-          <div v-if="isSubmitted && errors.has('password-confirm')">
-            {{ errors.first('password-confirm') }}
-          </div>
-        </div>
-        <div id="register-button-div">
-          <button>Sign Up</button>
-        </div>
+    <div class="info-div" v-if="message">{{message}}</div>
+    <div class="error-div" v-if="errMessage">{{errMessage}}</div>
+    <form id="register-form" v-if="!isSuccessful" name="form" @submit.prevent="handleRegister">
+      <div><!-- User field -->
+        <label for="username-input">Username</label>
+        <input id="username-input"
+               name="username"
+               type="text"
+               v-model="user.username"/>
+      </div><!-- Password field -->
+      <div class="lower-form-group">
+        <label for="password-input">Password</label>
+        <input id="password-input"
+               type="password"
+               name="password"
+               v-model="user.password"/>
+      </div><!-- Confirm field -->
+      <div class="lower-form-group">
+        <label for="password-confirm-input">Confirm Password</label>
+        <input id="password-confirm-input"
+               name="password-confirm"
+               type="password"
+               v-model="confirmPassword"/>
+      </div>
+      <div id="register-button-div">
+        <button>Sign Up</button>
       </div>
     </form>
   </div>
@@ -57,7 +43,8 @@
         confirmPassword: '',
         isSubmitted: false,
         isSuccessful: false,
-        message: ''
+        message: '',
+        errMessage: ''
       };
     },
     computed: {
@@ -74,20 +61,40 @@
       handleRegister() {
         this.message = '';
         this.isSubmitted = true;
-        this.$validator.validate().then(isValid => {
-          if (isValid) {
-            this.$store.dispatch('auth/register', this.user).then(
-              data => {
-                this.message = data.message;
+        if (this.isUsernameValid(this.user.username)) {
+          if (this.isPasswordValid(this.user.password)) {
+            if (this.arePasswordsEqual(this.user.password, this.confirmPassword)) {
+              this.$store.dispatch('auth/register', this.user).then(() => {
+                this.message = 'Registration successful. You can log in now.';
                 this.isSuccessful = true;
-              },
-              error => {
-                this.message = error.response.data.message;
+              }).catch(() => {
+                this.errMessage = "Registration unsuccessful. This username is already taken.";
                 this.isSuccessful = false;
-              }
-            );
+              });
+            } else {
+              this.errMessage = "The passwords are different. " +
+                "Make sure you typed in your passwords correctly.";
+              this.isSuccessful = false;
+            }
+          } else {
+            this.errMessage = "The password is not valid. " +
+              "Passwords must be at least 8 characters long.";
+            this.isSuccessful = false;
           }
-        });
+        } else {
+          this.errMessage = "The username is not valid. " +
+            "Usernames have to be at least 5 characters long.";
+          this.isSuccessful = false;
+        }
+      },
+      isUsernameValid(username) {
+        return (username.length >= 5 && username.length <= 50);
+      },
+      isPasswordValid(password) {
+        return (password.length >= 8 && password.length <= 100);
+      },
+      arePasswordsEqual(password, confirmPassword) {
+        return password === confirmPassword;
       }
     }
   };
@@ -115,6 +122,10 @@
     text-align: right;
   }
 
+  h3 {
+    margin: 0 0 20px 0;
+  }
+
   button {
     font-size: 1em;
     font-weight: bold;
@@ -130,5 +141,27 @@
 
   button:hover {
     background-color: var(--active-el-color-dark);
+  }
+
+  .info-div, .error-div {
+    display: inline-block;
+    padding: 12px;
+    vertical-align: middle;
+    font-size: 1em;
+    margin-bottom: 15px;
+    border: 1px solid;
+    border-radius: 3px;
+  }
+
+  .info-div {
+    color: rgba(1, 71, 8, 0.91);
+    background-color: #e6fdec;
+    border-color: #005e17;
+  }
+
+  .error-div {
+    color: #990008;
+    background-color: #fde6e6;
+    border-color: #a80303;
   }
 </style>
