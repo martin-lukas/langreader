@@ -5,18 +5,27 @@ class TextService {
     console.log("Call: getTextTitles()");
     return AXIOS.get(`/texts`);
   }
+
   getTextById(textId) {
     console.log(`Call: getTextById(${textId})`);
     return AXIOS.get(`/texts/${textId}`);
   }
+
   addText(textObj) {
     console.log('Call: addText()');
     return AXIOS.post('/texts', textObj);
   }
+
+  addTexts(textObjs) {
+    console.log('Call: addTexts()');
+    return AXIOS.post('/texts/batch', textObjs);
+  }
+
   updateText(textObj) {
     console.log('Call: updateText()');
     return AXIOS.put('/texts', textObj);
   }
+
   removeText(textObj) {
     console.log('Call: removeText()');
     return AXIOS.delete('/texts', {data: textObj});

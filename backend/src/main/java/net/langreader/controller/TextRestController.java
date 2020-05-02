@@ -120,4 +120,34 @@ public class TextRestController {
         }
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
+
+    @PostMapping("/batch")
+    public ResponseEntity<?> addTexts(HttpServletRequest req, @RequestBody List<Text> newTexts) {
+        String username = jwtUtils.getUsernameFromHttpRequest(req);
+        Optional<User> userOpt = userRepository.findByUsername(username);
+        if (userOpt.isPresent()) {
+            User user = userOpt.get();
+            Language chosenLang = user.getChosenLang();
+            if (chosenLang != null) {
+                boolean isTextListValid = true;
+                for (Text newText : newTexts) {
+                    String textVal = newText.getText();
+                    if (textVal == null || textVal.isEmpty()) {
+                        isTextListValid = false;
+                        break;
+                    }
+                }
+                if (isTextListValid) {
+                    for (Text newText : newTexts) {
+                        newText.setId(null);
+                        newText.setUser(user);
+                        newText.setLanguage(chosenLang);
+                        textRepository.save(newText);
+                    }
+                    return new ResponseEntity<>(HttpStatus.OK);
+                }
+            }
+        }
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
 }
