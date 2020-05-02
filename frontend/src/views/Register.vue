@@ -65,25 +65,26 @@
           if (this.isPasswordValid(this.user.password)) {
             if (this.arePasswordsEqual(this.user.password, this.confirmPassword)) {
               this.$store.dispatch('auth/register', this.user).then(() => {
+                this.errMessage = '';
                 this.message = 'Registration successful. You can log in now.';
                 this.isSuccessful = true;
               }).catch(() => {
-                this.errMessage = "Registration unsuccessful. This username is already taken.";
+                this.errMessage = 'Registration unsuccessful. This username is already taken.';
                 this.isSuccessful = false;
               });
             } else {
-              this.errMessage = "The passwords are different. " +
-                "Make sure you typed in your passwords correctly.";
+              this.errMessage = 'The passwords are different. ' +
+                'Make sure you typed in your passwords correctly.';
               this.isSuccessful = false;
             }
           } else {
-            this.errMessage = "The password is not valid. " +
-              "Passwords must be at least 8 characters long.";
+            this.errMessage = 'The password is not valid. ' +
+              'Passwords must be at least 8 characters long.';
             this.isSuccessful = false;
           }
         } else {
-          this.errMessage = "The username is not valid. " +
-            "Usernames have to be at least 5 characters long.";
+          this.errMessage = 'The username is not valid. ' +
+            'Usernames have to be at least 5 characters long.';
           this.isSuccessful = false;
         }
       },
@@ -154,9 +155,9 @@
   }
 
   .info-div {
-    color: rgba(1, 71, 8, 0.91);
+    color: rgba(0, 97, 10, 0.91);
     background-color: #e6fdec;
-    border-color: #005e17;
+    border-color: #019925;
   }
 
   .error-div {
