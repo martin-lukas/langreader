@@ -16,7 +16,6 @@ import java.net.URL;
 @RestController
 @RequestMapping("/api/ext")
 public class ExternalRestController {
-
     @GetMapping
     public ResponseEntity<String> getExternalResource(@RequestParam(value = "url") String url) {
         try {
