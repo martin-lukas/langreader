@@ -81,7 +81,7 @@
         });
       },
       splitTextAndAddToDB(textObj) {
-        if (textObj.title < TITLE_LIMIT && textObj.text < TOTAL_INPUT_LIMIT) {
+        if (textObj.title.length < TITLE_LIMIT && textObj.text.length < TOTAL_INPUT_LIMIT) {
           this.isToggledAddText = false;
           if (textObj.text.length < TEXT_LIMIT) {
             this.addTextToDB(textObj);
