@@ -5,7 +5,7 @@
     </div>
     <div id="reading-area" v-else>
       <router-link to="/library" id="back-button">
-        &#8678;
+        <i class="far fa-arrow-alt-circle-left"></i>
       </router-link>
       <h3>{{ textObj.title }}</h3>
       <p v-for="(paragraph, index) in paragraphs" :key="index">
@@ -193,18 +193,16 @@
   }
 
   #back-button {
-    font-size: 1.5em;
-    background-color: #4994d4;
-    color: white;
-    padding: 2px 7px;
-    border: none;
-    border-radius: 10px;
+    font-size: 2.2em;
+    color: var(--active-el-color);
+    background-color: white;
+    border-radius: 50%;
     outline: 0;
     cursor: pointer;
   }
 
   #back-button:hover {
-    background-color: #327bbf;
+    color: var(--active-el-color-dark);
   }
 
   p {
