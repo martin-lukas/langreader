@@ -11,6 +11,9 @@ export const auth = {
   getters: {
     isAdmin(state) {
       return state.user.roles.includes('ROLE_ADMIN');
+    },
+    isLoggedIn(state) {
+      return !!(state.user);
     }
   },
   actions: {
