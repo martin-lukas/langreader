@@ -207,39 +207,45 @@
     background-color: #327bbf;
   }
 
-  #back-button.toggled {
-    background-color: #0a569a;
-  }
-
-  h3 {
-    font-size: 1.5em;
-    margin: 0.5em 0;
+  p {
+    line-height: 1.6;
   }
 
   a {
-    display: inline-block;
-    font-size: 1.1em;
-    padding: 1px 0;
-    background-color: #cfe6ff;
-    border-radius: 3px;
+    display: inline;
+    box-sizing: border-box;
+    font-size: 1.05em;
+    padding: 0 2px;
+    background-color: #d2e7fc;
+    border-radius: 4px;
     text-decoration: none;
+    color: var(--default-text-color);
     cursor: pointer;
   }
 
   a:focus {
     outline: 0;
-    color: #e00202;
+    padding: 1px 0;
+    border: 2px solid #96c8ff;
   }
 
-  .KNOWN {
+  .KNOWN, .IGNORED {
     background-color: white;
   }
 
   .STUDIED {
-    background-color: yellow;
+    background-color: #faf63d;
   }
 
-  .IGNORED {
-    background-color: white;
+  .KNOWN:focus {
+    border: 2px solid #23f607;
+  }
+
+  .STUDIED:focus {
+    border: 2px solid #fadb0f;
+  }
+
+  .IGNORED:focus {
+    border: 2px solid #beb4c1;
   }
 </style>
