@@ -1,6 +1,7 @@
 <template>
   <div id="login-view">
     <h3>Login Page</h3>
+    <div class="error-div" v-if="errMessage">{{errMessage}}</div>
     <div id="login-form">
       <form name="form" @submit.prevent="handleLogin">
         <div><!-- User field -->
@@ -8,26 +9,17 @@
           <input id="username-input"
                  name="username"
                  type="text"
-                 v-model="user.username"
-                 v-validate="'required'"/>
-          <div v-if="isSubmitted && errors.has('username')" role="alert">
-            Username is required!
-          </div>
+                 v-model="user.username"/>
         </div>
         <div class="lower-form-group">
           <label for="password-input">Password</label>
           <input id="password-input"
                  name="password"
                  type="password"
-                 v-model="user.password"
-                 v-validate="'required'"/>
-          <div v-if="errors.has('password')" role="alert">
-            Password is required!
-          </div>
+                 v-model="user.password"/>
         </div>
         <div id="login-button-div" class="lower-form-group">
           <button :disabled="loading">Login</button>
-          <div v-if="message" role="alert">{{message}}</div>
         </div>
       </form>
     </div>
@@ -44,7 +36,7 @@
         user: new User('', ''),
         loading: false,
         isSubmitted: false,
-        message: ''
+        errMessage: ''
       };
     },
     computed: {
@@ -63,30 +55,21 @@
     methods: {
       handleLogin() {
         this.loading = true;
-        this.$validator.validateAll().then(isValid => {
-          if (!isValid) {
-            this.loading = false;
-            return;
-          }
-          if (this.user.username && this.user.password) {
-            this.$store.dispatch('auth/login', this.user).then(
-              () => {
-                if (!this.isAdmin) {
-                  this.$store.dispatch('lang/fetchUserLangs');
-                  this.$store.dispatch('lang/fetchChosenLang');
-                }
-                this.$router.push('/');
-              },
-              (error) => {
-                this.loading = false;
-                this.message =
-                  (error.response && error.response.data) ||
-                  error.message ||
-                  error.toString();
-              }
-            );
-          }
-        });
+        if (this.user.username && this.user.password) {
+          this.$store.dispatch('auth/login', this.user).then(() => {
+            if (!this.isAdmin) {
+              this.$store.dispatch('lang/fetchUserLangs');
+              this.$store.dispatch('lang/fetchChosenLang');
+            }
+            this.$router.push('/');
+          }).catch(() => {
+              this.loading = false;
+              this.errMessage = "Incorrect username or password. Please try again.";
+            }
+          );
+        } else {
+          this.loading = false;
+        }
       }
     }
   };
@@ -95,6 +78,10 @@
 <style scoped>
   #login-view {
     text-align: center;
+  }
+
+  h3 {
+    margin: 0 0 20px 0;
   }
 
   #login-form {
@@ -129,5 +116,17 @@
 
   button:hover {
     background-color: var(--active-el-color-dark);
+  }
+
+  .error-div {
+    display: inline-block;
+    padding: 12px;
+    vertical-align: middle;
+    color: #990008;
+    background-color: #fde6e6;
+    font-size: 1em;
+    margin-bottom: 15px;
+    border: 1px solid #a80303;
+    border-radius: 3px;
   }
 </style>
