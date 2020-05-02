@@ -1,6 +1,9 @@
 <template>
   <nav id="top-nav" class="top-nav" @click="collapseTopNav">
-    <router-link to="/" class="always-visible nav-link">Home</router-link>
+    <router-link to="/" class="always-visible nav-link">
+      <template v-if="!currentUser">Home</template>
+      <template v-else>Tutorial</template>
+    </router-link>
     <router-link v-if="currentUser && !isAdmin && chosenLang"
                  to="/library"
                  class="always-visible nav-link">
@@ -70,7 +73,6 @@
     overflow: hidden;
     border-radius: 0 0 10px 10px;
     border-top: 2px groove var(--active-el-color);
-    font-size: 0.95em;
     user-select: none;
   }
 
