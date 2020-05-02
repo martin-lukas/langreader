@@ -17,6 +17,7 @@ public class LangReaderApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(LangReaderApplication.class, args);
 	}
+//	This bean enables HTTP to HTTPS redirect - only for production
 //	/*
 	@Bean
 	public ServletWebServerFactory servletContainer() {
