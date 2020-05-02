@@ -13,6 +13,7 @@
     color: var(--active-el-color);
     background-color: #333;
     user-select: none;
+    text-shadow: 2px 1px var(--active-el-color-dark);
   }
 
   @media screen and (min-width: 500px) {
