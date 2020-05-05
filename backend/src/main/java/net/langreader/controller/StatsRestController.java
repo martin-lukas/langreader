@@ -39,7 +39,6 @@ public class StatsRestController {
             User user = userOpt.get();
             List<LangStatistics> stats = new ArrayList<>();
             List<Language> userLangs = user.getLangs();
-            userLangs.sort(Comparator.comparing(Language::getFullName));
             for (Language userLang : userLangs) {
                 stats.add(new LangStatistics(
                         userLang,
@@ -48,6 +47,7 @@ public class StatsRestController {
                         wordRepository.countByTypeAndLanguageAndUser(WordType.IGNORED, userLang, user)
                 ));
             }
+            stats.sort(Comparator.comparing(LangStatistics::getKnownCount).reversed());
             return new ResponseEntity<>(stats, HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
