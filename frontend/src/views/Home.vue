@@ -12,8 +12,20 @@
         prepared text area, or by copying and pasting the URL address of an article. A special
         algorithm will try to save the main text from the provided URL. This might not be 100%
         successful, but based on my testing, it seems fairly accurate. If the text is too long,
-      it will be split into manageable chunks, in order for the webpage to stay responsive.</p>
+        it will be split into manageable chunks, in order for the webpage to stay responsive.</p>
       <p>I wish you a pleasant learning experience with this website.</p>
+      <p>.</p>
+      <p>Planned features:</p>
+      <ul>
+        <li>instant translation of a word marked as studied</li>
+        <li>editing already submitted texts</li>
+        <li>section for going through studied words (+ their translation)</li>
+        <li>possibly export of these studied words into a structured file (e.g. for Anki)</li>
+        <li>touch controls for reading even on a smartphone / tablet</li>
+        <li>hypothetically: upload an ebook file and automatically split it into chapters and
+          add those to the library
+        </li>
+      </ul>
     </template>
     <template v-else>
       <h1>Tutorial</h1>
@@ -39,7 +51,7 @@
         either by pasting the text directly into the text area, or by providing a URL address,
         from which the app will attempt to extract the main text into a new library item.</p>
       <p>If the text is too long, it will be split into several parts, which will be labeled
-      accordingly. This keeps the loading time of each text acceptable.</p>
+        accordingly. This keeps the loading time of each text acceptable.</p>
       <p>Each text is shown by its title, from the newest all the way to the oldest one. There are
         buttons available on the right side, which allow you to edit the text
         (<i>to be implemented</i>), or remove it.</p>
@@ -56,7 +68,8 @@
         </li>
       </ul>
       <p>A known word and an ignored word will look exactly the same. That is intentional. After
-        marking them as such, these shouldn't distract you anymore from the more significant words.</p>
+        marking them as such, these shouldn't distract you anymore from the more significant
+        words.</p>
       <h3>Controls</h3>
       <p>After the loading is finished, you can select the first word by a mouse click. Selecting
         surrounding words after that can be accomplished with <span class="key arrow-key">←</span>
@@ -77,19 +90,9 @@
         relevant to
         your learning.</p>
       <h2>Account Page</h2>
-      <p>This section is still being worked on.</p>
+      <p>Here you will find statistics about marked words in your studied languages. This page
+        will be expanded in the future to provide even more statistics and account information.</p>
     </template>
-    <p>Planned features:</p>
-    <ul>
-      <li>instant translation of a word marked as studied</li>
-      <li>editing already submitted texts</li>
-      <li>section for going through studied words (+ their translation)</li>
-      <li>possibly export of these studied words into a structured file (e.g. for Anki)</li>
-      <li>touch controls for reading even on a smartphone / tablet</li>
-      <li>hypothetically: upload an ebook file and automatically split it into chapters and
-        add those to the library
-      </li>
-    </ul>
   </div>
 </template>
 
