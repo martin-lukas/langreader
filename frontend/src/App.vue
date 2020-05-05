@@ -5,16 +5,18 @@
     <div id="content-area">
       <router-view/>
     </div>
+    <Footer/>
   </div>
 </template>
 
 <script>
   import Header from './components/Header';
   import TopNav from './components/TopNav';
+  import Footer from './components/Footer';
 
   export default {
     name: 'app',
-    components: {Header, TopNav},
+    components: {Header, TopNav, Footer},
     methods: {
       logOut() {
         this.$store.dispatch('auth/logout');
