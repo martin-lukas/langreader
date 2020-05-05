@@ -25,6 +25,7 @@ public class ExternalRestController {
             String text = ArticleExtractor.INSTANCE.getText(is);
             return new ResponseEntity<>(text, HttpStatus.OK);
         } catch (IOException | BoilerpipeProcessingException e) {
+            e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
