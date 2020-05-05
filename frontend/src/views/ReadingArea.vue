@@ -10,17 +10,23 @@
       <h3>{{ textObj.title }}</h3>
       <p v-for="(paragraph, index) in paragraphs" :key="index">
         <template v-for="(string, index) in paragraph">
-          <a v-if="string.isWord"
-             href="#"
-             :class="string.str.type"
-             :key="index"
-             @click.prevent
-             @keyup.37="focusPrevious"
-             @keyup.39="focusNext"
-             @keyup.65="(e) => {updateWord(e, string.str, 'KNOWN')}"
-             @keyup.83="(e) => {updateWord(e, string.str, 'STUDIED')}"
-             @keyup.68="(e) => {updateWord(e, string.str, 'IGNORED')}"
-             @keyup.82="(e) => {updateWord(e, string.str, null)}">{{ string.str.word }}</a>
+          <div v-if="string.isWord" class="tooltip" :key="index">
+            <a href="#"
+               :class="string.str.type"
+               :key="index"
+               @click.prevent="(e) => {
+                 if(e.target.className === 'STUDIED') {
+                   showTranslation(e, string.str);
+                 }
+               }"
+               @keyup.37="focusPrevious"
+               @keyup.39="focusNext"
+               @keyup.65="(e) => {updateWord(e, string.str, 'KNOWN')}"
+               @keyup.83="(e) => {updateWord(e, string.str, 'STUDIED')}"
+               @keyup.68="(e) => {updateWord(e, string.str, 'IGNORED')}"
+               @keyup.82="(e) => {updateWord(e, string.str, null)}">{{ string.str.word }}</a>
+            <span class="tooltiptext">{{ translation }}</span>
+          </div>
           <template v-else>{{ string.str.word }}</template>
         </template>
       </p>
@@ -32,6 +38,7 @@
   import utils from "../utils/utils";
   import WordService from '../services/word.service';
   import TextService from '../services/text.service';
+  import TranslateService from '../services/translate.service';
 
   export default {
     name: 'reading',
@@ -41,7 +48,8 @@
         isEnriched: false,
         paragraphs: [],
         strObjs: [],
-        strCounts: []
+        strCounts: [],
+        translation: ''
       }
     },
     created() {
@@ -61,6 +69,9 @@
     computed: {
       currentUser() {
         return this.$store.state.auth.user;
+      },
+      chosenLang() {
+        return this.$store.getters["lang/chosenLang"];
       }
     },
     methods: {
@@ -107,6 +118,7 @@
       updateWord(event, wordObj, newType) {
         const oldType = wordObj.type;
         if (oldType !== newType) {
+          this.resetPreviousToggle();
           const updatedWordObj = {word: wordObj.word.toLowerCase(), type: newType};
           this.updateStrObjs([updatedWordObj]);
           if (newType === null) {
@@ -116,12 +128,35 @@
           } else {
             this.updateInDB(updatedWordObj);
           }
+          if (newType === 'STUDIED') {
+            this.showTranslation(event, wordObj);
+          }
           if (newType !== null) {
             this.$nextTick(() => {
               this.focusNext(event);
             });
           }
         }
+      },
+      showTranslation(event, wordObj) {
+        this.resetPreviousToggle();
+        if (this.chosenLang.code !== 'EN') {
+        TranslateService.translate(this.chosenLang.id, wordObj.word).then((response) => {
+          this.translation = response.data.toLowerCase();
+          this.toggleTranslation(event);
+        }).catch(() => {
+          console.error("Error during translation");
+        });
+        }
+      },
+      toggleTranslation(event) {
+        event.target.parentElement.className = 'tooltip toggled';
+      },
+      resetPreviousToggle() {
+        const toggledEls = document.getElementsByClassName('tooltip toggled');
+        toggledEls.forEach(toggledEl => {
+          toggledEl.className = 'tooltip';
+        });
       },
       createParagraphs() {
         const strings = [...this.strObjs];
@@ -196,7 +231,10 @@
     font-size: 2.2em;
     color: var(--active-el-color);
     background-color: white;
+    border: none;
     border-radius: 50%;
+    padding: 0;
+    margin: 0;
     outline: 0;
     cursor: pointer;
   }
@@ -245,5 +283,45 @@
 
   .IGNORED:focus {
     border: 2px solid #beb4c1;
+  }
+
+  .tooltip {
+    display: inline-block;
+    position: relative;
+  }
+
+  .tooltip .tooltiptext {
+    visibility: hidden;
+    min-width: 120px;
+    max-width: 200px;
+    background-color: #282828;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 0;
+    position: absolute;
+    z-index: 1;
+    bottom: 120%;
+    left: 50%;
+    margin-left: -60px;
+  }
+
+  .tooltiptext {
+    font-size: 0.9em;
+  }
+
+  .tooltip .tooltiptext::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: black transparent transparent transparent;
+  }
+
+  .toggled .tooltiptext {
+    visibility: visible;
   }
 </style>
