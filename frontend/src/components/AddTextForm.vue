@@ -27,6 +27,7 @@
     </div>
     <div id="add-button-div">
       <button @click="sendAddText">Add</button>
+      <div class="error-div" v-if="errMessage">{{errMessage}}</div>
     </div>
   </div>
 </template>
@@ -40,7 +41,8 @@
         titleInput: '',
         textInput: '',
         urlInput: '',
-        isTextChosen: true
+        isTextChosen: true,
+        errMessage: ''
       }
     },
     methods: {
@@ -51,14 +53,16 @@
             const trimmedText = this.textInput.trim();
             if (trimmedText) {
               this.$emit('add-text', {title: trimmedTitle, text: trimmedText});
+              this.errMessage = '';
             }
           } else {
             const trimmedUrl = this.urlInput.trim();
             if (trimmedUrl) {
               ExtService.getExtResponse(trimmedUrl).then(response => {
                 this.$emit('add-text', {title: trimmedTitle, text: response.data});
-              }).catch((err) => {
-                console.log(err);
+                this.errMessage = '';
+              }).catch(() => {
+                this.errMessage = 'Couldn\'t parse the provided URL.';
               });
             }
           }
@@ -116,7 +120,10 @@
   }
 
   #add-button-div {
-    text-align: right;
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: space-between;
+    align-items: baseline;
   }
 
   button {
@@ -134,5 +141,12 @@
 
   button:hover, button:focus {
     background-color: var(--active-el-color-dark);
+  }
+
+  .error-div {
+    display: inline-block;
+    margin: 8px 10px;
+    color: #990008;
+    font-size: 1em;
   }
 </style>
