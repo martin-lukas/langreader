@@ -13,8 +13,6 @@ public class SignupRequest {
     @NotBlank
     private String username;
 
-//    private Set<String> roles;
-
     @NotBlank
     private String password;
 

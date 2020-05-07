@@ -72,11 +72,9 @@ public class AuthRestController {
                     .badRequest()
                     .body(new MessageResponse("Error: Username is already taken!"));
         }
-        // Create new user's account
         User user = new User(signUpRequest.getUsername(), encoder.encode(signUpRequest.getPassword()));
-        // dont let users decide their role
-//        Set<String> strRoles = signUpRequest.getRoles();
         Set<Role> roles = new HashSet<>();
+        // set user role as USER automatically, and admins can be made by hand
         Role userRole = roleRepository.findByName(ERole.ROLE_USER)
                 .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
         roles.add(userRole);
@@ -84,20 +82,5 @@ public class AuthRestController {
         user.setNativeLang(signUpRequest.getNativeLang());
         userRepository.save(user);
         return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
-//        if (strRoles == null) {
-//
-//        } else {
-//            strRoles.forEach(role -> {
-//                if ("admin".equals(role)) {
-//                    Role adminRole = roleRepository.findByName(ERole.ROLE_ADMIN)
-//                            .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-//                    roles.add(adminRole);
-//                } else {
-//                    Role userRole = roleRepository.findByName(ERole.ROLE_USER)
-//                            .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-//                    roles.add(userRole);
-//                }
-//            });
-//        }
     }
 }
