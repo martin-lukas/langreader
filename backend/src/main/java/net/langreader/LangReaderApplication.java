@@ -6,6 +6,7 @@ import org.apache.tomcat.util.descriptor.web.SecurityCollection;
 import org.apache.tomcat.util.descriptor.web.SecurityConstraint;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
 import org.springframework.boot.web.servlet.ServletComponentScan;
 import org.springframework.boot.web.servlet.server.ServletWebServerFactory;
@@ -17,9 +18,8 @@ public class LangReaderApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(LangReaderApplication.class, args);
 	}
-//	This bean enables HTTP to HTTPS redirect - only for production
-//	/*
 	@Bean
+	@ConditionalOnProperty(value="langreader.app.httpsEnabled", havingValue = "true")
 	public ServletWebServerFactory servletContainer() {
 		TomcatServletWebServerFactory tomcat = new TomcatServletWebServerFactory() {
 			@Override
@@ -44,5 +44,4 @@ public class LangReaderApplication {
 		connector.setRedirectPort(443);
 		return connector;
 	}
-//	*/
 }
