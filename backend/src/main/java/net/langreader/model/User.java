@@ -38,6 +38,10 @@ public class User {
     @JoinColumn(name = "chosen_lang_id")
     private Language chosenLang;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "native_lang_id")
+    private Language nativeLang;
+
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Word> words;
 

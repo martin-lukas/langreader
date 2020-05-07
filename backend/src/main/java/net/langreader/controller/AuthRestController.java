@@ -47,8 +47,9 @@ public class AuthRestController {
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody SigninRequest signinRequest) {
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(signinRequest.getUsername(), signinRequest.getPassword()));
-
+                new UsernamePasswordAuthenticationToken(
+                        signinRequest.getUsername(),
+                        signinRequest.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = jwtUtils.generateJwtToken(authentication);
 
@@ -80,6 +81,7 @@ public class AuthRestController {
                 .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
         roles.add(userRole);
         user.setRoles(roles);
+        user.setNativeLang(signUpRequest.getNativeLang());
         userRepository.save(user);
         return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
 //        if (strRoles == null) {

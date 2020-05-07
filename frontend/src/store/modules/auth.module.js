@@ -34,6 +34,8 @@ export const auth = {
       commit('logout');
       dispatch('lang/clearChosenLang', null, { root: true });
       dispatch('lang/clearUserLangs', null, { root: true });
+      dispatch('lang/clearNativeLang', null, { root: true });
+      dispatch('lang/clearAllLangs', null, { root: true });
     },
     register({commit}, user) {
       return AuthService.register(user).then(

@@ -72,6 +72,9 @@
       },
       chosenLang() {
         return this.$store.getters["lang/chosenLang"];
+      },
+      nativeLang() {
+        return this.$store.getters["lang/nativeLang"];
       }
     },
     methods: {
@@ -140,13 +143,13 @@
       },
       showTranslation(event, wordObj) {
         this.resetPreviousToggle();
-        if (this.chosenLang.code !== 'EN') {
-        TranslateService.translate(this.chosenLang.id, wordObj.word).then((response) => {
-          this.translation = response.data.toLowerCase();
-          this.toggleTranslation(event);
-        }).catch(() => {
-          console.error("Error during translation");
-        });
+        if (this.chosenLang.code !== this.nativeLang.code) {
+          TranslateService.translate(wordObj.word).then((response) => {
+            this.translation = response.data.toLowerCase();
+            this.toggleTranslation(event);
+          }).catch(() => {
+            console.error("Error during translation");
+          });
         }
       },
       toggleTranslation(event) {

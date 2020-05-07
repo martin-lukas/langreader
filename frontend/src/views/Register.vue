@@ -25,6 +25,17 @@
                type="password"
                v-model="confirmPassword"/>
       </div>
+      <div class="lower-form-group">
+        <label for="native-lang-select">Select Your Native Language</label>
+        <select v-model="user.nativeLang" id="native-lang-select">
+          <option :value="null" selected>Choose Language</option>
+          <option v-for="language in allLangs"
+                  :key="language.id"
+                  :value="language">
+            {{ language.fullName }}
+          </option>
+        </select>
+      </div>
       <div id="register-button-div">
         <button>Sign Up</button>
       </div>
@@ -39,7 +50,7 @@
     name: 'Register',
     data() {
       return {
-        user: new User('', ''),
+        user: new User('', '', null),
         confirmPassword: '',
         isSubmitted: false,
         isSuccessful: false,
@@ -49,12 +60,20 @@
     },
     computed: {
       loggedIn() {
-        return this.$store.state.auth.status.loggedIn;
+        return this.$store.getters["auth/isLoggedIn"];
+      },
+      allLangs() {
+        return this.$store.getters["lang/allLangs"];
       }
     },
     mounted() {
       if (this.loggedIn) {
         this.$router.push('/library');
+      } else {
+        if (this.allLangs.length === 0) {
+          console.log("fetching");
+          this.$store.dispatch('lang/fetchAllLangs');
+        }
       }
     },
     methods: {
@@ -64,14 +83,20 @@
         if (this.isUsernameValid(this.user.username)) {
           if (this.isPasswordValid(this.user.password)) {
             if (this.arePasswordsEqual(this.user.password, this.confirmPassword)) {
-              this.$store.dispatch('auth/register', this.user).then(() => {
-                this.errMessage = '';
-                this.message = 'Registration successful. You can log in now.';
-                this.isSuccessful = true;
-              }).catch(() => {
-                this.errMessage = 'Registration unsuccessful. This username is already taken.';
+              if (this.user.nativeLang !== null) {
+                this.$store.dispatch('auth/register', this.user).then(() => {
+                  this.errMessage = '';
+                  this.message = 'Registration successful. You can log in now.';
+                  this.isSuccessful = true;
+                }).catch(() => {
+                  this.errMessage = 'Registration unsuccessful. This username is already taken.';
+                  this.isSuccessful = false;
+                });
+              } else {
+                this.errMessage = 'Please choose your native language (it will be used for ' +
+                  'translation in English texts).';
                 this.isSuccessful = false;
-              });
+              }
             } else {
               this.errMessage = 'The passwords are different. ' +
                 'Make sure you typed in your passwords correctly.';

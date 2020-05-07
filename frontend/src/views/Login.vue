@@ -60,6 +60,7 @@
             if (!this.isAdmin) {
               this.$store.dispatch('lang/fetchUserLangs');
               this.$store.dispatch('lang/fetchChosenLang');
+              this.$store.dispatch('lang/fetchNativeLang');
             }
             this.$router.push('/');
           }).catch(() => {

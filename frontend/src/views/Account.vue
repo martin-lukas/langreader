@@ -2,6 +2,7 @@
   <div id="account-page">
     <h1>Hi, {{ currentUser.username }}!</h1>
     <hr>
+    <h4>Native Language: {{ nativeLang.fullName }}</h4>
     <h2>Language Statistics</h2>
     <table>
       <thead>
@@ -37,6 +38,9 @@
     computed: {
       currentUser() {
         return this.$store.state.auth.user;
+      },
+      nativeLang() {
+        return this.$store.getters["lang/nativeLang"];
       }
     },
     created() {
@@ -55,6 +59,10 @@
 
 <style scoped>
   #account-page {
+  }
+
+  h4 {
+    font-size: 1.3em;
   }
 
   p {

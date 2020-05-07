@@ -1,9 +1,9 @@
 import AXIOS from '../utils/axios-instance';
 
 class TranslateService {
-  translate(chosenLangId, krWord) {
-    console.log("Call: translateFromKrToEn()");
-    return AXIOS.get(`/translate/${chosenLangId}?word=${krWord}`).then(response => {
+  translate(word) {
+    console.log(`Call: translate(${word})`);
+    return AXIOS.get(`/translate?word=${word}`).then(response => {
       return Promise.resolve(response);
     }).catch(error => {
       return Promise.reject(error);

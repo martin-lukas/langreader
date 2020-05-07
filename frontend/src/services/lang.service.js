@@ -54,9 +54,24 @@ class LangService {
     });
   }
 
+  getNativeLang() {
+    console.log("Call: getNativeLang()");
+    return AXIOS.get('/langs/native').then(response => {
+      localStorage.setItem('nativeLang', JSON.stringify(response.data));
+      return Promise.resolve(response);
+    }).catch(error => {
+      return Promise.reject(error);
+    });
+  }
+
   getAllLangs() {
     console.log("Call: getAllLangs()");
-    return AXIOS.get('/langs/all');
+    return AXIOS.get('/langs/all').then(response => {
+      localStorage.setItem('allLangs', JSON.stringify(response.data));
+      return Promise.resolve(response);
+    }).catch(error => {
+      return Promise.reject(error);
+    });
   }
 }
 

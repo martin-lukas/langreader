@@ -6,8 +6,6 @@ import net.langreader.dao.WordRepository;
 import net.langreader.model.Language;
 import net.langreader.model.User;
 import net.langreader.security.jwt.JwtUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -50,8 +48,7 @@ public class LanguageRestController {
     }
 
     @PostMapping
-    public ResponseEntity<?> addUserLang(
-            HttpServletRequest req, @RequestBody Language newLang) {
+    public ResponseEntity<?> addUserLang(HttpServletRequest req, @RequestBody Language newLang) {
         String username = jwtUtils.getUsernameFromHttpRequest(req);
         Optional<User> foundUser = userRepository.findByUsername(username);
         if (foundUser.isPresent()) {
@@ -102,6 +99,17 @@ public class LanguageRestController {
             foundUser.setChosenLang(newChosenLang);
             userRepository.save(foundUser);
             return new ResponseEntity<>(HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
+
+    @GetMapping("/native")
+    public ResponseEntity<Language> getNativeLang(HttpServletRequest req) {
+        String username = jwtUtils.getUsernameFromHttpRequest(req);
+        Optional<User> user = userRepository.findByUsername(username);
+        if (user.isPresent()) {
+            Language nativeLang = user.get().getNativeLang();
+            return new ResponseEntity<>(nativeLang, HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }

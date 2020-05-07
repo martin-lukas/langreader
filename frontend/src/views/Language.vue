@@ -43,12 +43,17 @@
       chosenLang() {
         return this.$store.state.lang.chosenLang;
       },
+      nativeLang() {
+        return this.$store.state.lang.nativeLang;
+      },
       allLangs() {
         return this.$store.state.lang.allLangs;
       }
     },
     mounted() {
-      this.$store.dispatch('lang/fetchAllLangs');
+      if (this.allLangs.length === 0) {
+        this.$store.dispatch('lang/fetchAllLangs');
+      }
     },
     methods: {
       setCurrentLang(lang) {
