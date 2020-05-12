@@ -1,6 +1,6 @@
 # LangReader.net
 
-####The language learning web application through reading.
+The language learning web application through reading.
 
 The web application is developed using these technologies:
 
