@@ -67,9 +67,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                         "/api/words/**",
                         "/api/texts/**",
                         "/api/langs/**",
-                        "/api/ext/**").authenticated()
-                .antMatchers(
-                        "/api/users/**").hasRole("ADMIN")
+                        "/api/ext/**",
+                        "/api/translate/**",
+                        "/api/users/**", // restricted in the controller itself
+                        "/api/stats/**").authenticated()
                 .anyRequest().permitAll();
 
         if (isHttpsAllowed) {
