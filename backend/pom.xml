@@ -70,28 +70,46 @@
             <version>0.9.1</version>
         </dependency>
 
+        <!-- Boilerpipe - for HTML main text extraction -->
         <dependency>
             <groupId>de.l3s.boilerpipe</groupId>
             <artifactId>boilerpipe</artifactId>
             <version>1.1.0</version>
         </dependency>
 
+        <!-- Boilerpipe dependency -->
         <dependency>
             <groupId>net.sourceforge.nekohtml</groupId>
             <artifactId>nekohtml</artifactId>
             <version>1.9.22</version>
         </dependency>
 
+        <!-- Boilerpipe dependency -->
         <dependency>
             <groupId>org.eclipse.birt.runtime.3_7_1</groupId>
             <artifactId>org.apache.xerces</artifactId>
             <version>2.9.0</version>
         </dependency>
 
+        <!-- Google translate -->
         <dependency>
             <groupId>com.google.cloud</groupId>
             <artifactId>google-cloud-translate</artifactId>
         </dependency>
+
+        <!-- Spring Mail -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-mail</artifactId>
+        </dependency>
+
+        <!-- JavaMail -->
+        <dependency>
+            <groupId>com.sun.mail</groupId>
+            <artifactId>javax.mail</artifactId>
+            <version>1.6.2</version>
+        </dependency>
+
 
         <!-- Test -->
         <dependency>
