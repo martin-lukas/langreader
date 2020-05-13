@@ -3,7 +3,10 @@ import Router from 'vue-router';
 
 import Home from './views/Home';
 import Login from './views/Login';
-import Register from './views/Register.vue';
+import Register from './views/Register';
+import Contact from './views/Contact';
+import TermsOfService from './views/TermsOfService';
+import PrivacyPolicy from './views/PrivacyPolicy';
 import NotFoundComponent from './views/NotFoundView';
 
 Vue.use(Router);
@@ -15,6 +18,9 @@ const router = new Router({
     {path: '/', name: 'home', component: Home},
     {path: '/login', name: 'login', component: Login},
     {path: '/register', name: 'register', component: Register},
+    {path: '/contact', name: 'contact', component: Contact},
+    {path: '/tos', name: 'tos', component: TermsOfService},
+    {path: '/privacy', name: 'privacy', component: PrivacyPolicy},
     {path: '/admin', name: 'admin', component: () => import('./views/Administration')},
     {path: '/library', name: 'library', component: () => import('./views/Library')},
     {path: '/reading/:textId', name: 'reading', component: () => import('./views/ReadingArea')},
@@ -26,7 +32,7 @@ const router = new Router({
 });
 
 router.beforeEach((to, from, next) => {
-  const publicPages = ['/login', '/register', '/'];
+  const publicPages = ['/login', '/register', '/', '/contact', '/tos', '/privacy'];
   const adminPages = ['/admin'];
   const authRequired = !publicPages.includes(to.path);
   const adminRequired = adminPages.includes(to.path);

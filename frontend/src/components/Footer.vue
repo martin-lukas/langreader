@@ -2,9 +2,11 @@
   <div id="footer">
     &copy; {{ currentYear }} Martin Lukáš
     |
-    <a href="#">Contact</a>
+    <router-link to="/contact">Contact Us</router-link>
     |
-    <a href="#">Privacy Policy</a>
+    <router-link to="/tos">Terms of Service</router-link>
+    |
+    <router-link to="/privacy">Privacy Policy</router-link>
   </div>
 </template>
 
@@ -34,10 +36,4 @@
   a:hover {
     color: var(--default-text-color);
   }
-
-  /*@media screen and (min-width: 500px) {*/
-  /*  #header {*/
-  /*    font-size: 60px;*/
-  /*  }*/
-  /*}*/
 </style>

@@ -26,7 +26,7 @@
                v-model="confirmPassword"/>
       </div>
       <div class="lower-form-group">
-        <label for="native-lang-select">Select Your Native Language</label>
+        <label id="lang-label" for="native-lang-select">Select Your Native Language:</label>
         <select v-model="user.nativeLang" id="native-lang-select">
           <option :value="null" selected>Choose Language</option>
           <option v-for="language in allLangs"
@@ -35,6 +35,14 @@
             {{ language.fullName }}
           </option>
         </select>
+      </div>
+      <div class="lower-form-group" id="consent-div">
+        <input type="checkbox" id="consent-checkbox" v-model="isConsentChecked">
+        <label id="consent-label" for="consent-checkbox">
+          I give consent to storing my user credentials according to the
+          <router-link to="/privacy">Privacy Policy</router-link>. I've also read and agree to the
+          <router-link to="/tos">Terms of Service</router-link>.
+        </label>
       </div>
       <div id="register-button-div">
         <button>Sign Up</button>
@@ -52,6 +60,7 @@
       return {
         user: new User('', '', null),
         confirmPassword: '',
+        isConsentChecked: false,
         isSubmitted: false,
         isSuccessful: false,
         message: '',
@@ -84,14 +93,19 @@
           if (this.isPasswordValid(this.user.password)) {
             if (this.arePasswordsEqual(this.user.password, this.confirmPassword)) {
               if (this.user.nativeLang !== null) {
-                this.$store.dispatch('auth/register', this.user).then(() => {
-                  this.errMessage = '';
-                  this.message = 'Registration successful. You can log in now.';
-                  this.isSuccessful = true;
-                }).catch(() => {
-                  this.errMessage = 'Registration unsuccessful. This username is already taken.';
+                if (this.isConsentChecked) {
+                  this.$store.dispatch('auth/register', this.user).then(() => {
+                    this.errMessage = '';
+                    this.message = 'Registration successful. You can log in now.';
+                    this.isSuccessful = true;
+                  }).catch(() => {
+                    this.errMessage = 'Registration unsuccessful. This username is already taken.';
+                    this.isSuccessful = false;
+                  });
+                } else {
+                  this.errMessage = 'You have to consent to storing your user credentials to continue.';
                   this.isSuccessful = false;
-                });
+                }
               } else {
                 this.errMessage = 'Please choose your native language (it will be used for ' +
                   'translation in English texts).';
@@ -142,6 +156,19 @@
 
   .lower-form-group {
     margin-top: 10px;
+  }
+
+  #lang-label {
+    display: block;
+    margin-bottom: 5px;
+  }
+
+  #consent-checkbox {
+    width: 20px;
+  }
+
+  #consent-label {
+    font-size: 0.9em;
   }
 
   #register-button-div {
