@@ -16,5 +16,6 @@ public class Role {
     private Integer id;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "role_name")
     private ERole name;
 }

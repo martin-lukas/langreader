@@ -18,7 +18,7 @@ public class Word {
     private String word;
 
     @Enumerated
-    @Column(columnDefinition = "int", name = "type_id")
+    @Column(columnDefinition = "int", name = "word_type_id")
     private WordType type;
 
     @ManyToOne(fetch = FetchType.EAGER)

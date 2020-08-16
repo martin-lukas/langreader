@@ -18,7 +18,9 @@ public class User {
 
     @NonNull private String username;
 
-    @NonNull private String password;
+    @NonNull
+    @Column(name = "passwd")
+    private String password;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
