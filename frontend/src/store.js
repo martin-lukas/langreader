@@ -1,8 +1,8 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 
-import { auth } from './modules/auth.module';
-import { lang } from './modules/lang.module';
+import { auth } from './store/auth.module';
+import { lang } from './store/lang.module';
 
 Vue.use(Vuex);
 

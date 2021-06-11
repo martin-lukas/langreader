@@ -31,6 +31,13 @@
         </template>
       </p>
     </div>
+    <div v-if="isEnriched">
+      <div id="fixed-toolbar">
+        <div id="know-button" class="fixed-button">Button one</div>
+        <div id="study-button" class="fixed-button">Button two</div>
+        <div id="ignore-button" class="fixed-button">Button three</div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -178,7 +185,7 @@
         const allWords = document.getElementById('reading-area').getElementsByTagName('a');
         forwardLoop: for (let i = 0; i < allWords.length; i++) {
           if (currentWord === allWords[i]) {
-            backwardLoop: for (let j = i - 1; j >= 0; j--) {
+            for (let j = i - 1; j >= 0; j--) {
               if (utils.getClassName(allWords[j]) === '') {
                 allWords[j].focus({preventScroll: true});
                 break forwardLoop;
@@ -192,7 +199,7 @@
         const allWords = document.getElementById('reading-area').getElementsByTagName('a');
         forwardLoop: for (let i = 0; i < allWords.length; i++) {
           if (currentWord === allWords[i]) {
-            forwardForwardLoop: for (let j = i + 1; j < allWords.length; j++) {
+            for (let j = i + 1; j < allWords.length; j++) {
               if (utils.getClassName(allWords[j]) === '') {
                 allWords[j].focus({preventScroll: true});
                 break forwardLoop;
@@ -244,6 +251,38 @@
 
   #back-button:hover {
     color: var(--active-el-color-dark);
+  }
+
+  #fixed-toolbar {
+    display: flex;
+    flex-direction: row;
+    align-content: space-evenly;
+    width: 100%;
+    height: 3em;
+    position: fixed;
+    z-index: 9999;
+    bottom: 0;
+    right: 0;
+    left: 0;
+  }
+
+  .fixed-button {
+    font-size: 2em;
+    text-align: center;
+    width: 100%;
+    height: 100%;
+  }
+
+  #know-button {
+    background-color: #23f607;
+  }
+
+  #study-button {
+    background-color: #faf63d;
+  }
+
+  #ignore-button {
+    background-color: #beb4c1;
   }
 
   p {

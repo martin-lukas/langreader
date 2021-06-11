@@ -1,4 +1,4 @@
-import LangService from '../../services/lang.service';
+import LangService from '../services/lang.service';
 
 const chosenLangInLS = JSON.parse(localStorage.getItem('chosenLang'));
 const initChosenLang = (chosenLangInLS) ? chosenLangInLS : null;

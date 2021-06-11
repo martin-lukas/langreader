@@ -19,7 +19,7 @@
       </router-link>
       <router-link v-if="isAdmin" to="/admin" class="nav-link">Administration</router-link>
       <router-link v-if="currentUser" to="/account" class="nav-link">My Account</router-link>
-      <a v-if="currentUser" @click.prevent="logOut" class="nav-link">Log Out</a>
+      <a v-if="currentUser" @click.prevent="() => {this.$emit('logOut')}" class="nav-link">Log Out</a>
     </div>
     <a href="javascript:void(0);" class="icon" @click.stop="toggleTopNav">
       <i class="fa fa-bars"></i>
